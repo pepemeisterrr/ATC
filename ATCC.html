@@ -508,10 +508,14 @@
 
         // Логин
         document.getElementById('login-btn').addEventListener('click', () => {
+            console.log('Login button clicked');
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
+            console.log('Username:', username, 'Password:', password);
             const user = users[username];
+            console.log('Found user:', user);
             if (user && user.password === password) {
+                console.log('Login successful');
                 currentUser = user;
                 document.getElementById('login-container').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
@@ -624,8 +628,8 @@
                     table.appendChild(row);
                 });
 
-                // Принятые вызовы (расширенно с деталями)
-                leftPanel.innerHTML += '<h3>Принятые в работу вызовы</h3><div class="call-list"><table><tr><th>ID</th><th>Телефон</th><th>Адрес</th><th>Тип</th><th>Срочность</th><th>Пострадавшие</th><th>Объект</th><th>Статус</th><th>Действия</th></tr></table></div>';
+                // Принятые вызовы
+                leftPanel.innerHTML += '<h3>Принятые в работу вызовы</h3><div class="call-list"><table><tr><th>ID</th><th>Телефон</th><th>Адрес</th><th>Статус</th><th>Действия</th></tr></table></div>';
                 const workTable = leftPanel.querySelectorAll('table')[1];
                 calls.filter(c => c.status === 'в работе').forEach(call => {
                     const row = document.createElement('tr');
@@ -633,10 +637,6 @@
                         <td>${call.id}</td>
                         <td>${call.phone}</td>
                         <td>${call.address}</td>
-                        <td>${call.incidentType || 'Не указано'}</td>
-                        <td>${call.urgency || 'Не указано'}</td>
-                        <td>${call.victims || 0}</td>
-                        <td>${call.objectType || 'Не указано'}</td>
                         <td>${call.status}</td>
                         <td><button class="btn btn-accept" onclick="completeCall(${call.id})">Завершить</button></td>
                     `;
