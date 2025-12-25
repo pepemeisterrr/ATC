@@ -151,7 +151,7 @@
         }
 
         #left-panel {
-            flex: 1 1 600px; /* Шире для списка вызовов */
+            flex: 1 1 700px; /* Ещё шире для списка вызовов */
         }
 
         #right-panel {
@@ -187,12 +187,12 @@
         }
 
         th:nth-child(2), td:nth-child(2) { /* Телефон */
-            width: 250px;
+            width: 300px;
             white-space: nowrap;
         }
 
         th:nth-child(3), td:nth-child(3) { /* Адрес */
-            width: 400px;
+            width: 500px;
         }
 
         th:nth-child(4), td:nth-child(4) { /* Время */
@@ -305,6 +305,15 @@
                 flex-direction: column;
             }
         }
+
+        /* Статистика панель */
+        #stats-panel {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
     </style>
     <script src="https://api-maps.yandex.ru/2.1/?apikey=1163255e-bb23-48e7-aeb1-be5c1cc1be33&lang=ru_RU"></script>
 </head>
@@ -338,6 +347,8 @@
             <!-- Правая панель: Карта (для оператора) или Отчеты (для супервизора) -->
             <div class="panel" id="right-panel"></div>
         </div>
+        <!-- Панель статистики -->
+        <div class="container" id="stats-panel" style="display: none;"></div>
         <!-- Нижняя панель: Логи -->
         <div class="container" id="logs-panel" style="display: none;"></div>
     </div>
@@ -500,48 +511,50 @@
             if (timerInterval) clearInterval(timerInterval);
         });
 
-        // Обновление времени ожидания (каждую секунду)
+        // Обновление времени ожидания (каждую секунду, без перерендера)
         function updateWaitTimes() {
-            if (!currentUser) return;
-            const rows = document.querySelectorAll('.call-list tr:not(:first-child)');
-            rows.forEach(row => {
-                const id = parseInt(row.querySelector('td:first-child').innerText);
-                const call = calls.find(c => c.id === id);
-                if (call && call.status === 'ожидание') {
-                    const waitTimeCell = row.querySelector('td:nth-child(4)');
-                    const waitTime = Math.floor((Date.now() - call.time) / 1000);
-                    waitTimeCell.innerText = `${waitTime} сек`;
-                    waitTimeCell.className = waitTime > 30 ? 'overtime' : '';
+            calls.forEach(call => {
+                if (call.status === 'ожидание') {
+                    const waitTimeCell = document.getElementById(`wait-time-${call.id}`);
+                    if (waitTimeCell) {
+                        const waitTime = Math.floor((Date.now() - call.time) / 1000);
+                        waitTimeCell.innerText = `${waitTime} сек`;
+                        waitTimeCell.className = waitTime > 30 ? 'overtime' : '';
+                    }
                 }
             });
         }
 
-        // Обновление UI
+        // Обновление UI (рендерит таблицу только один раз, время обновляется отдельно)
         function updateUI() {
             if (!currentUser) return;
 
             const leftPanel = document.getElementById('left-panel');
             const rightPanel = document.getElementById('right-panel');
+            const statsPanel = document.getElementById('stats-panel');
             const logsPanel = document.getElementById('logs-panel');
+            statsPanel.style.display = 'block';
             logsPanel.style.display = 'block';
 
             leftPanel.innerHTML = '';
             rightPanel.innerHTML = '';
+            statsPanel.innerHTML = '';
             logsPanel.innerHTML = '';
 
             if (currentUser.role === 'operator') {
-                // Левая панель: Очередь вызовов (прокручиваемая) + статистика
-                leftPanel.innerHTML = '<h3>Ожидающие вызовы</h3><div class="call-list"><table><tr><th>ID</th><th>Телефон</th><th>Адрес</th><th>Время ожидания</th><th>Действия</th></tr></table></div>';
-                const table = leftPanel.querySelector('table');
+                // Левая панель: Очередь вызовов (прокручиваемая)
+                leftPanel.innerHTML = '<h3>Ожидающие вызовы</h3><div class="call-list"><table id="calls-table"><tr><th>ID</th><th>Телефон</th><th>Адрес</th><th>Время ожидания</th><th>Действия</th></tr></table></div>';
+                const table = document.getElementById('calls-table');
                 calls.filter(c => c.status === 'ожидание').forEach(call => {
                     const row = document.createElement('tr');
+                    row.id = `call-row-${call.id}`;
                     const waitTime = Math.floor((Date.now() - call.time) / 1000);
                     const overtime = waitTime > 30 ? 'overtime' : ''; // >30 сек - красный
                     row.innerHTML = `
                         <td>${call.id}</td>
                         <td>${call.phone}</td>
                         <td>${call.address}</td>
-                        <td class="${overtime}">${waitTime} сек</td>
+                        <td id="wait-time-${call.id}" class="${overtime}">${waitTime} сек</td>
                         <td>
                             <button class="btn btn-accept" onclick="acceptCall(${call.id})">Принять</button>
                             <button class="btn btn-reject" onclick="rejectCall(${call.id})">Отклонить</button>
@@ -550,17 +563,17 @@
                     table.appendChild(row);
                 });
 
-                // Статистика под списком
+                // Правая панель: Карта
+                rightPanel.innerHTML = '<h3>Карта вызовов</h3><div id="map"></div>';
+                initMap(); // Инициализация после создания div
+
+                // Панель статистики
                 const stats = calculateStats();
-                leftPanel.innerHTML += `<h3>Статистика</h3>
+                statsPanel.innerHTML = `<h3>Статистика</h3>
                     <p>Вызовов сегодня: ${stats.total}</p>
                     <p>Ложные: ${stats.false}</p>
                     <p>В работе: ${stats.inWork}</p>
                     <p>Среднее время ответа: ${stats.avgTime} сек</p>`;
-
-                // Правая панель: Карта
-                rightPanel.innerHTML = '<h3>Карта вызовов</h3><div id="map"></div>';
-                initMap(); // Инициализация после создания div
 
                 // Нижняя панель: Логи
                 logsPanel.innerHTML = '<h3>Лог процесса</h3><ul></ul>';
@@ -600,20 +613,20 @@
                     workTable.appendChild(row);
                 });
 
-                // Общая статистика для супервизора
-                const stats = calculateStats();
-                leftPanel.innerHTML += `<h3>Общая статистика</h3>
-                    <p>Вызовов всего: ${stats.total}</p>
-                    <p>Ложные: ${stats.false}</p>
-                    <p>В работе: ${stats.inWork}</p>
-                    <p>Среднее время ответа: ${stats.avgTime} сек</p>`;
-
                 // Правая панель: Отчеты
                 rightPanel.innerHTML = '<h3>Отчетность</h3><select id="report-period"><option>Сегодня</option><option>Вчера</option><option>Неделя</option><option>Месяц</option></select><button id="generate-report-btn">Сформировать</button><button id="export-report-btn">Экспорт</button><div id="report-preview"></div>';
                 document.getElementById('generate-report-btn').addEventListener('click', generateReport);
                 document.getElementById('export-report-btn').addEventListener('click', exportReport);
 
-                // Логи в нижней панели для супервизора тоже
+                // Панель статистики
+                const stats = calculateStats();
+                statsPanel.innerHTML = `<h3>Общая статистика</h3>
+                    <p>Вызовов всего: ${stats.total}</p>
+                    <p>Ложные: ${stats.false}</p>
+                    <p>В работе: ${stats.inWork}</p>
+                    <p>Среднее время ответа: ${stats.avgTime} сек</p>`;
+
+                // Нижняя панель: Логи
                 logsPanel.innerHTML = '<h3>История действий</h3><ul></ul>';
                 const ul = logsPanel.querySelector('ul');
                 logs.forEach(log => {
@@ -625,6 +638,7 @@
 
             // Обновление маркеров
             markers.forEach((marker, i) => updateMarkerColor(marker, calls[i] ? calls[i].status : ''));
+            updateWaitTimes(); // Немедленное обновление времени после рендера
         }
 
         // Инициализация карты
