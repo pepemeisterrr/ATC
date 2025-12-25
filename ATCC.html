@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПсАТС - Автоматическая Телефонная Станция</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Основные стили */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Форма логина */
+        #login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 400px;
+        }
+
+        .login-box h1 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .login-box button:hover {
+            background: #2980b9;
+        }
+
+        .login-box .demo-info {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Основной интерфейс */
+        #main-content {
+            display: none;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        #logout-btn {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #logout-btn:hover {
+            background: #c0392b;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            flex: 1;
+        }
+
+        .panel h3 {
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #f4f4f4;
+        }
+
+        .overtime {
+            color: red;
+            font-weight: bold;
+        }
+
+        .btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .btn-accept {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-reject {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-transfer {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-start {
+            background: #3498db;
+            color: white;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Модальное окно для текущего вызова */
+        #call-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .modal-content button {
+            margin: 10px;
+        }
+    </style>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=1163255e-bb23-48e7-aeb1-be5c1cc1be33&lang=ru_RU"></script> <!-- Замените YOUR_YANDEX_API_KEY на реальный ключ -->
+</head>
+<body>
+
+    <!-- Форма логина -->
+    <div id="login-container">
+        <div class="login-box">
+            <h1>ПсАТС - Автоматическая Телефонная Станция</h1>
+            <p>Система для управления телефонными коммуникациями и маршрутизацией вызовов в пожарной охране.</p>
+            <input type="text" id="username" placeholder="Логин" required>
+            <input type="password" id="password" placeholder="Пароль" required>
+            <button id="login-btn">Войти</button>
+            <div class="demo-info">
+                <p>Демо-доступы:</p>
+                <p>Операторы: operator1, operator2, operator3 (пароль: 1234)</p>
+                <p>Дежурный руководитель: supervisor1 (пароль: 1234)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div id="main-content">
+        <header>
+            <h2 id="user-info"></h2>
+            <button id="logout-btn">Выйти</button>
+        </header>
+        <div class="container dashboard">
+            <!-- Левая панель: Управление вызовами (для оператора) или Мониторинг (для супервизора) -->
+            <div class="panel" id="left-panel"></div>
+            <!-- Правая панель: Логи или Отчеты -->
+            <div class="panel" id="right-panel"></div>
+            <!-- Карта (для оператора) -->
+            <div class="panel" id="map-panel" style="flex: 100%;"></div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для текущего вызова -->
+    <div id="call-modal">
+        <div class="modal-content">
+            <h3>Текущий вызов</h3>
+            <p id="call-info"></p>
+            <button id="start-call-btn" class="btn btn-start">Начать разговор</button>
+            <button id="transfer-call-btn" class="btn btn-transfer">Перевести вызов</button>
+            <button id="close-modal-btn" class="btn btn-reject">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        // Тестовые аккаунты
+        const users = {
+            operator1: { role: 'operator', name: 'Оператор 1', password: '1234', status: 'свободен' },
+            operator2: { role: 'operator', name: 'Оператор 2', password: '1234', status: 'свободен' },
+            operator3: { role: 'operator', name: 'Оператор 3', password: '1234', status: 'свободен' },
+            supervisor1: { role: 'supervisor', name: 'Дежурный Руководитель 1', password: '1234' }
+        };
+
+        // Список возможных адресов в Москве с координатами
+        const moscowAddresses = [
+            { address: 'Красная площадь, 1', lat: 55.7539, lng: 37.6208 },
+            { address: 'Арбат, 10', lat: 55.7522, lng: 37.6011 },
+            { address: 'Тверская улица, 15', lat: 55.7600, lng: 37.6090 },
+            { address: 'Проспект Мира, 119', lat: 55.8267, lng: 37.6375 },
+            { address: 'Ленинградский проспект, 36', lat: 55.7892, lng: 37.5586 }
+        ];
+
+        // Данные
+        let calls = []; // Список вызовов
+        let logs = []; // Логи
+        let currentUser = null;
+        let map = null;
+        let markers = [];
+
+        // Инициализация карты
+        ymaps.ready(initMap);
+        function initMap() {
+            map = new ymaps.Map('map', {
+                center: [55.7558, 37.6173], // Центр Москвы
+                zoom: 10
+            });
+        }
+
+        // Генерация случайного номера телефона
+        function generatePhone() {
+            return '+7 (' + Math.floor(Math.random() * 900 + 100) + ') ' + Math.floor(Math.random() * 900 + 100) + '-' + Math.floor(Math.random() * 90 + 10);
+        }
+
+        // Генерация случайного вызова
+        function generateCall() {
+            const addr = moscowAddresses[Math.floor(Math.random() * moscowAddresses.length)];
+            const call = {
+                id: calls.length + 1,
+                phone: generatePhone(),
+                address: addr.address,
+                lat: addr.lat,
+                lng: addr.lng,
+                time: Date.now(),
+                status: 'ожидание',
+                operator: null
+            };
+            calls.push(call);
+            addLog(`Новый вызов: ${call.phone}, ${call.address}`);
+            addMarker(call);
+            updateUI();
+        }
+
+        // Добавление маркера на карту
+        function addMarker(call) {
+            const marker = new ymaps.Placemark([call.lat, call.lng], {
+                hintContent: call.address,
+                balloonContent: `Вызов от ${call.phone}, статус: ${call.status}`
+            });
+            map.geoObjects.add(marker);
+            markers.push(marker);
+            updateMarkerColor(marker, call.status);
+        }
+
+        // Обновление цвета маркера
+        function updateMarkerColor(marker, status) {
+            let color = '#3498db'; // Ожидание - синий
+            if (status === 'принят') color = '#27ae60'; // Зеленый
+            if (status === 'ложный') color = '#e74c3c'; // Красный
+            if (status === 'в работе') color = '#f39c12'; // Оранжевый
+            marker.options.set('preset', `islands#circleIcon`); // Можно кастомизировать
+            // Для кастомизации цвета нужно использовать custom icon, но для простоты используем preset
+        }
+
+        // Логи
+        function addLog(message) {
+            logs.push({ time: new Date().toLocaleString(), message });
+            updateUI();
+        }
+
+        // Логин
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const user = users[username];
+            if (user && user.password === password) {
+                currentUser = user;
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                document.getElementById('user-info').innerText = `${user.name} (${user.role === 'operator' ? 'Оператор' : 'Дежурный Руководитель'})`;
+                addLog(`Вход: ${user.name}`);
+                updateUI();
+                // Начать генерацию вызовов
+                setInterval(generateCall, Math.random() * 10000 + 5000); // Каждые 5-15 сек
+            } else {
+                alert('Неверный логин или пароль');
+            }
+        });
+
+        // Выход
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            currentUser = null;
+            document.getElementById('main-content').style.display = 'none';
+            document.getElementById('login-container').style.display = 'flex';
+            addLog('Выход');
+        });
+
+        // Обновление UI
+        function updateUI() {
+            if (!currentUser) return;
+
+            const leftPanel = document.getElementById('left-panel');
+            const rightPanel = document.getElementById('right-panel');
+            const mapPanel = document.getElementById('map-panel');
+
+            leftPanel.innerHTML = '';
+            rightPanel.innerHTML = '';
+
+            if (currentUser.role === 'operator') {
+                // Левая панель: Очередь вызовов
+                leftPanel.innerHTML = '<h3>Ожидающие вызовы</h3><table><tr><th>Телефон</th><th>Адрес</th><th>Время ожидания</th><th>Действия</th></tr></table>';
+                const table = leftPanel.querySelector('table');
+                calls.filter(c => c.status === 'ожидание').forEach(call => {
+                    const row = document.createElement('tr');
+                    const waitTime = Math.floor((Date.now() - call.time) / 1000);
+                    const overtime = waitTime > 30 ? 'overtime' : ''; // >30 сек - красный
+                    row.innerHTML = `
+                        <td>${call.phone}</td>
+                        <td>${call.address}</td>
+                        <td class="${overtime}">${waitTime} сек</td>
+                        <td>
+                            <button class="btn btn-accept" onclick="acceptCall(${call.id})">Принять</button>
+                            <button class="btn btn-reject" onclick="rejectCall(${call.id})">Отклонить</button>
+                        </td>
+                    `;
+                    table.appendChild(row);
+                });
+
+                // Правая панель: Логи
+                rightPanel.innerHTML = '<h3>Лог процесса</h3><ul></ul>';
+                const ul = rightPanel.querySelector('ul');
+                logs.slice(-10).forEach(log => { // Последние 10
+                    const li = document.createElement('li');
+                    li.innerText = `${log.time}: ${log.message}`;
+                    ul.appendChild(li);
+                });
+
+                // Карта
+                mapPanel.innerHTML = '<h3>Карта вызовов</h3><div id="map"></div>';
+                ymaps.ready(() => map.container.fitToViewport()); // Обновить карту
+
+                // Статистика
+                const stats = calculateStats();
+                leftPanel.innerHTML += `<h3>Статистика</h3>
+                    <p>Вызовов сегодня: ${stats.total}</p>
+                    <p>Ложные: ${stats.false}</p>
+                    <p>В работе: ${stats.inWork}</p>
+                    <p>Среднее время ответа: ${stats.avgTime} сек</p>`;
+
+            } else if (currentUser.role === 'supervisor') {
+                // Левая панель: Мониторинг операторов
+                leftPanel.innerHTML = '<h3>Мониторинг операторов</h3><table><tr><th>Имя</th><th>Статус</th><th>Вызовы</th></tr></table>';
+                const table = leftPanel.querySelector('table');
+                Object.keys(users).filter(u => users[u].role === 'operator').forEach(op => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${users[op].name}</td>
+                        <td>${users[op].status}</td>
+                        <td>${calls.filter(c => c.operator === users[op].name).length}</td>
+                    `;
+                    table.appendChild(row);
+                });
+
+                // Правая панель: Отчеты
+                rightPanel.innerHTML = '<h3>Отчетность</h3><select id="report-period"><option>Сегодня</option><option>Вчера</option><option>Неделя</option><option>Месяц</option></select><button id="generate-report-btn">Сформировать</button><button id="export-report-btn">Экспорт</button><div id="report-preview"></div>';
+                document.getElementById('generate-report-btn').addEventListener('click', generateReport);
+                document.getElementById('export-report-btn').addEventListener('click', exportReport);
+
+                // Скрыть карту для супервизора
+                mapPanel.style.display = 'none';
+
+                // Принятые вызовы
+                leftPanel.innerHTML += '<h3>Принятые в работу вызовы</h3><table><tr><th>Телефон</th><th>Адрес</th><th>Статус</th><th>Действия</th></tr></table>';
+                const workTable = leftPanel.querySelectorAll('table')[1];
+                calls.filter(c => c.status === 'в работе').forEach(call => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${call.phone}</td>
+                        <td>${call.address}</td>
+                        <td>${call.status}</td>
+                        <td><button class="btn btn-accept" onclick="completeCall(${call.id})">Завершить</button></td>
+                    `;
+                    workTable.appendChild(row);
+                });
+            }
+        }
+
+        // Принять вызов
+        window.acceptCall = function(id) {
+            const call = calls.find(c => c.id === id);
+            if (call) {
+                call.status = 'принят';
+                call.operator = currentUser.name;
+                currentUser.status = 'занят';
+                addLog(`Принят вызов ${id}`);
+                showCallModal(call);
+                updateUI();
+            }
+        };
+
+        // Отклонить вызов
+        window.rejectCall = function(id) {
+            const call = calls.find(c => c.id === id);
+            if (call) {
+                call.status = 'отклонен';
+                addLog(`Отклонен вызов ${id}`);
+                updateUI();
+            }
+        };
+
+        // Завершить вызов (для супервизора)
+        window.completeCall = function(id) {
+            const call = calls.find(c => c.id === id);
+            if (call) {
+                call.status = 'завершен';
+                addLog(`Завершен вызов ${id}`);
+                updateUI();
+            }
+        };
+
+        // Показать модал для вызова
+        function showCallModal(call) {
+            document.getElementById('call-info').innerText = `Вызов от ${call.phone}, адрес: ${call.address}`;
+            document.getElementById('call-modal').style.display = 'flex';
+
+            document.getElementById('start-call-btn').onclick = () => {
+                call.status = 'в работе';
+                addLog(`Начата работа с вызовом ${call.id}`);
+                currentUser.status = 'занят';
+                updateUI();
+                closeModal();
+            };
+
+            document.getElementById('transfer-call-btn').onclick = () => {
+                // Симуляция перевода: сбросить статус
+                call.status = 'ожидание';
+                call.operator = null;
+                currentUser.status = 'свободен';
+                addLog(`Переведен вызов ${call.id}`);
+                updateUI();
+                closeModal();
+            };
+
+            document.getElementById('close-modal-btn').onclick = closeModal;
+        }
+
+        function closeModal() {
+            document.getElementById('call-modal').style.display = 'none';
+            currentUser.status = 'свободен';
+            updateUI();
+        }
+
+        // Статистика
+        function calculateStats() {
+            const total = calls.length;
+            const falseCalls = calls.filter(c => c.status === 'ложный').length;
+            const inWork = calls.filter(c => c.status === 'в работе').length;
+            const avgTime = calls.reduce((sum, c) => sum + (Date.now() - c.time) / 1000, 0) / total || 0;
+            return { total, false: falseCalls, inWork, avgTime: avgTime.toFixed(2) };
+        }
+
+        // Генерация отчета
+        function generateReport() {
+            const period = document.getElementById('report-period').value;
+            // Симуляция: просто список вызовов
+            let report = `Отчет за ${period}:\n`;
+            calls.forEach(c => {
+                report += `Вызов ${c.id}: ${c.phone}, ${c.address}, статус: ${c.status}\n`;
+            });
+            document.getElementById('report-preview').innerText = report;
+        }
+
+        // Экспорт отчета
+        function exportReport() {
+            const report = document.getElementById('report-preview').innerText;
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'report.txt';
+            a.click();
+        }
+
+        // Обновление маркеров
+        markers.forEach((marker, i) => updateMarkerColor(marker, calls[i].status));
+    </script>
+</body>
+</html>
