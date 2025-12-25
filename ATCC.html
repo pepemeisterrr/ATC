@@ -441,8 +441,8 @@
         function generatePhone() {
             const operatorCode = '9' + Math.floor(Math.random() * 10) + '' + Math.floor(Math.random() * 10); // 900-999
             const middle = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            const last = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-            return `+7 (${operatorCode}) ${middle}-${last}`;
+            const last = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `+7 (${operatorCode}) ${middle}-${last.slice(0,2)}-${last.slice(2)}`;
         }
 
         // Генерация случайного вызова (async для geocode)
@@ -508,14 +508,10 @@
 
         // Логин
         document.getElementById('login-btn').addEventListener('click', () => {
-            console.log('Login button clicked');
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
-            console.log('Username:', username, 'Password:', password);
             const user = users[username];
-            console.log('Found user:', user);
             if (user && user.password === password) {
-                console.log('Login successful');
                 currentUser = user;
                 document.getElementById('login-container').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
@@ -723,11 +719,13 @@
 
         // Отклонить вызов
         window.rejectCall = function(id) {
-            const call = calls.find(c => c.id === id);
-            if (call) {
-                call.status = 'отклонен';
-                addLog(`Отклонен вызов #${id}`);
-                updateUI();
+            if (confirm('Подтвердите отклонение вызова?')) {
+                const call = calls.find(c => c.id === id);
+                if (call) {
+                    call.status = 'отклонен';
+                    addLog(`Отклонен вызов #${id}`);
+                    updateUI();
+                }
             }
         };
 
