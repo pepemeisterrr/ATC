@@ -151,7 +151,7 @@
         }
 
         #left-panel {
-            flex: 1 1 500px; /* Шире для списка вызовов */
+            flex: 1 1 600px; /* Шире для списка вызовов */
         }
 
         #right-panel {
@@ -182,9 +182,25 @@
             font-weight: 500;
         }
 
-        th:nth-child(2), td:nth-child(2) { /* Колонка телефона шире */
-            width: 200px;
+        th:nth-child(1), td:nth-child(1) { /* ID */
+            width: 50px;
+        }
+
+        th:nth-child(2), td:nth-child(2) { /* Телефон */
+            width: 250px;
             white-space: nowrap;
+        }
+
+        th:nth-child(3), td:nth-child(3) { /* Адрес */
+            width: 400px;
+        }
+
+        th:nth-child(4), td:nth-child(4) { /* Время */
+            width: 150px;
+        }
+
+        th:nth-child(5), td:nth-child(5) { /* Действия */
+            width: 200px;
         }
 
         .overtime {
@@ -386,10 +402,11 @@
         let callMap = null;
         let markers = [];
         let currentCall = null; // Для модалов
+        let timerInterval = null; // Для обновления времени
 
-        // Генерация случайного номера телефона (реалистично +7 (9xx) xxx-xx-xx)
+        // Генерация случайного номера телефона (+7 (9xx) xxx-xx-xx)
         function generatePhone() {
-            const operatorCode = 9 + Math.floor(Math.random() * 10) + '' + Math.floor(Math.random() * 10); // 900-999
+            const operatorCode = '9' + Math.floor(Math.random() * 10) + '' + Math.floor(Math.random() * 10); // 900-999
             const middle = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
             const last = Math.floor(Math.random() * 100).toString().padStart(2, '0');
             return `+7 (${operatorCode}) ${middle}-${last}`;
@@ -466,6 +483,9 @@
                 updateUI();
                 // Начать генерацию вызовов реже
                 setInterval(() => generateCall(), Math.random() * 30000 + 10000); // 10-40 сек
+                // Запустить таймер для обновления времени
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(updateWaitTimes, 1000);
             } else {
                 alert('Неверный логин или пароль');
             }
@@ -477,7 +497,24 @@
             document.getElementById('main-content').style.display = 'none';
             document.getElementById('login-container').style.display = 'flex';
             addLog('Выход');
+            if (timerInterval) clearInterval(timerInterval);
         });
+
+        // Обновление времени ожидания (каждую секунду)
+        function updateWaitTimes() {
+            if (!currentUser) return;
+            const rows = document.querySelectorAll('.call-list tr:not(:first-child)');
+            rows.forEach(row => {
+                const id = parseInt(row.querySelector('td:first-child').innerText);
+                const call = calls.find(c => c.id === id);
+                if (call && call.status === 'ожидание') {
+                    const waitTimeCell = row.querySelector('td:nth-child(4)');
+                    const waitTime = Math.floor((Date.now() - call.time) / 1000);
+                    waitTimeCell.innerText = `${waitTime} сек`;
+                    waitTimeCell.className = waitTime > 30 ? 'overtime' : '';
+                }
+            });
+        }
 
         // Обновление UI
         function updateUI() {
