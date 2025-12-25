@@ -8,68 +8,92 @@
     <style>
         /* Основные стили */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f0f4f8;
             color: #333;
+            transition: background-color 0.3s ease;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: none; /* Полная ширина */
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* Форма логина */
+        /* Форма логина - современный дизайн */
         #login-container {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .login-box {
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
             padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             text-align: center;
             width: 400px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .login-box:hover {
+            transform: translateY(-5px);
         }
 
         .login-box h1 {
             margin-bottom: 20px;
             color: #2c3e50;
+            font-weight: 500;
         }
 
         .login-box input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .login-box input:focus {
+            box-shadow: 0 0 0 2px #4facfe;
         }
 
         .login-box button {
             width: 100%;
-            padding: 10px;
-            background: #3498db;
+            padding: 12px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
         }
 
         .login-box button:hover {
-            background: #2980b9;
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
         }
 
         .login-box .demo-info {
             margin-top: 20px;
             font-size: 14px;
-            color: #7f8c8d;
+            color: #555;
         }
 
         /* Основной интерфейс */
@@ -78,29 +102,33 @@
         }
 
         header {
-            background: #2c3e50;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
             color: white;
-            padding: 10px 20px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         header h2 {
             margin: 0;
+            font-weight: 500;
         }
 
         #logout-btn {
-            background: #e74c3c;
+            background: #ff4757;
             color: white;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
         }
 
         #logout-btn:hover {
-            background: #c0392b;
+            background: #ff6b81;
         }
 
         .dashboard {
@@ -111,97 +139,123 @@
 
         .panel {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             padding: 20px;
             flex: 1;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .panel:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         }
 
         #left-panel {
-            flex: 1;
+            flex: 1 1 400px; /* Гибкий, мин 400px */
         }
 
         #right-panel {
-            flex: 3;
+            flex: 2 1 800px; /* Больше места для карты */
         }
 
         .panel h3 {
             margin-top: 0;
+            color: #2c3e50;
+            font-weight: 500;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0 10px;
         }
 
         th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 12px;
             text-align: left;
+            background: #f8f9fa;
+            border-radius: 10px;
         }
 
         th {
-            background: #f4f4f4;
+            background: #e9ecef;
+            font-weight: 500;
         }
 
         .overtime {
-            color: red;
+            color: #ff4757;
             font-weight: bold;
         }
 
         .btn {
-            padding: 5px 10px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
-            margin-right: 5px;
+            margin-right: 10px;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
         }
 
         .btn-accept {
-            background: #27ae60;
+            background: #2ed573;
             color: white;
         }
 
         .btn-reject {
-            background: #e74c3c;
+            background: #ff4757;
             color: white;
         }
 
         .btn-transfer {
-            background: #f39c12;
+            background: #ffa502;
             color: white;
         }
 
         .btn-start {
-            background: #3498db;
+            background: #3742fa;
             color: white;
         }
 
-        #map {
+        #map, #call-map {
             height: 700px;
             width: 100%;
-            margin-top: 20px;
+            border-radius: 20px;
+            overflow: hidden;
         }
 
         /* Модальное окно для текущего вызова */
-        #call-modal {
+        #call-modal, #talk-modal, #transfer-modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             justify-content: center;
             align-items: center;
+            z-index: 1000;
         }
 
         .modal-content {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 400px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            width: 500px;
+            max-width: 90%;
             text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .modal-content button {
@@ -210,15 +264,16 @@
 
         /* Прокручиваемый список вызовов */
         .call-list {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
+            margin-bottom: 20px;
         }
 
         /* Нижняя панель для логов */
         #logs-panel {
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             padding: 20px;
             margin-top: 20px;
         }
@@ -227,6 +282,9 @@
         @media (max-width: 768px) {
             .dashboard {
                 flex-direction: column;
+            }
+            #left-panel, #right-panel {
+                flex: 1 1 auto;
             }
         }
     </style>
@@ -237,8 +295,8 @@
     <!-- Форма логина -->
     <div id="login-container">
         <div class="login-box">
-            <h1>ПсАТС - Автоматическая Телефонная Станция</h1>
-            <p>Система для управления телефонными коммуникациями и маршрутизацией вызовов в пожарной охране.</p>
+            <h1>ПсАТС</h1>
+            <p>Современная система для управления вызовами в пожарной охране</p>
             <input type="text" id="username" placeholder="Логин" required>
             <input type="password" id="password" placeholder="Пароль" required>
             <button id="login-btn">Войти</button>
@@ -278,6 +336,29 @@
         </div>
     </div>
 
+    <!-- Модальное окно для разговора -->
+    <div id="talk-modal">
+        <div class="modal-content" style="width: 600px;">
+            <h3>Разговор с абонентом</h3>
+            <p id="talk-info"></p>
+            <div id="call-map" style="height: 400px; margin-bottom: 20px;"></div>
+            <textarea id="notes" placeholder="Заметки по звонку..." style="width: 100%; height: 100px; border-radius: 10px; padding: 10px;"></textarea>
+            <button id="end-talk-btn" class="btn btn-accept">Завершить разговор</button>
+            <button id="close-talk-btn" class="btn btn-reject">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно для перевода вызова -->
+    <div id="transfer-modal">
+        <div class="modal-content">
+            <h3>Перевод вызова</h3>
+            <p>Выберите оператора для перевода:</p>
+            <select id="transfer-select"></select>
+            <button id="confirm-transfer-btn" class="btn btn-transfer">Перевести</button>
+            <button id="close-transfer-btn" class="btn btn-reject">Отмена</button>
+        </div>
+    </div>
+
     <script>
         // Bounding box Москвы (город)
         const moscowBBox = {
@@ -300,7 +381,9 @@
         let logs = []; // Логи
         let currentUser = null;
         let map = null;
+        let callMap = null;
         let markers = [];
+        let currentCall = null; // Для модалов
 
         // Генерация случайного номера телефона
         function generatePhone() {
@@ -328,7 +411,8 @@
                 lng: lng,
                 time: Date.now(),
                 status: 'ожидание',
-                operator: null
+                operator: null,
+                notes: ''
             };
             calls.push(call);
             addLog(`Новый вызов #${call.id}: ${call.phone}, ${call.address}`);
@@ -520,6 +604,24 @@
             }).catch(err => console.error('Yandex Map init error:', err));
         }
 
+        // Инициализация карты в модале разговора
+        function initCallMap(call) {
+            ymaps.ready(() => {
+                if (callMap) {
+                    callMap.destroy();
+                }
+                callMap = new ymaps.Map('call-map', {
+                    center: [call.lat, call.lng],
+                    zoom: 15
+                });
+                const marker = new ymaps.Placemark([call.lat, call.lng], {
+                    hintContent: call.address
+                });
+                callMap.geoObjects.add(marker);
+                callMap.container.fitToViewport();
+            });
+        }
+
         // Принять вызов
         window.acceptCall = function(id) {
             const call = calls.find(c => c.id === id);
@@ -555,24 +657,18 @@
 
         // Показать модал для вызова
         function showCallModal(call) {
+            currentCall = call;
             document.getElementById('call-info').innerText = `Вызов #${call.id} от ${call.phone}, адрес: ${call.address}`;
             document.getElementById('call-modal').style.display = 'flex';
 
             document.getElementById('start-call-btn').onclick = () => {
-                call.status = 'в работе';
-                addLog(`Начата работа с вызовом #${call.id}`);
-                currentUser.status = 'занят';
-                updateUI();
                 closeModal();
+                showTalkModal(call);
             };
 
             document.getElementById('transfer-call-btn').onclick = () => {
-                call.status = 'ожидание';
-                call.operator = null;
-                currentUser.status = 'свободен';
-                addLog(`Переведен вызов #${call.id}`);
-                updateUI();
                 closeModal();
+                showTransferModal(call);
             };
 
             document.getElementById('false-call-btn').onclick = () => {
@@ -584,6 +680,69 @@
             };
 
             document.getElementById('close-modal-btn').onclick = closeModal;
+        }
+
+        // Показать модал для разговора
+        function showTalkModal(call) {
+            currentCall = call;
+            document.getElementById('talk-info').innerText = `Вызов #${call.id} от ${call.phone}, адрес: ${call.address}`;
+            document.getElementById('notes').value = call.notes || '';
+            document.getElementById('talk-modal').style.display = 'flex';
+            initCallMap(call);
+
+            document.getElementById('end-talk-btn').onclick = () => {
+                call.notes = document.getElementById('notes').value;
+                call.status = 'в работе';
+                addLog(`Завершен разговор по вызову #${call.id}, принят в работу`);
+                currentUser.status = 'занят';
+                updateUI();
+                closeTalkModal();
+            };
+
+            document.getElementById('close-talk-btn').onclick = closeTalkModal;
+        }
+
+        function closeTalkModal() {
+            document.getElementById('talk-modal').style.display = 'none';
+            if (callMap) callMap.destroy();
+            callMap = null;
+            if (currentUser.role === 'operator') currentUser.status = 'свободен';
+            updateUI();
+        }
+
+        // Показать модал для перевода
+        function showTransferModal(call) {
+            currentCall = call;
+            const select = document.getElementById('transfer-select');
+            select.innerHTML = '';
+            Object.keys(users).filter(u => users[u].role === 'operator' && users[u].name !== currentUser.name && users[u].status === 'свободен').forEach(op => {
+                const option = document.createElement('option');
+                option.value = op;
+                option.innerText = users[op].name;
+                select.appendChild(option);
+            });
+            document.getElementById('transfer-modal').style.display = 'flex';
+
+            document.getElementById('confirm-transfer-btn').onclick = () => {
+                const targetOp = select.value;
+                if (targetOp) {
+                    call.operator = users[targetOp].name;
+                    call.status = 'принят'; // Или 'ожидание', но предположим перевод как принятый новым
+                    addLog(`Вызов #${call.id} переведен на ${users[targetOp].name}`);
+                    currentUser.status = 'свободен';
+                    users[targetOp].status = 'занят';
+                    updateUI();
+                    closeTransferModal();
+                }
+            };
+
+            document.getElementById('close-transfer-btn').onclick = closeTransferModal;
+        }
+
+        function closeTransferModal() {
+            document.getElementById('transfer-modal').style.display = 'none';
+            if (currentUser.role === 'operator') currentUser.status = 'свободен';
+            updateUI();
         }
 
         function closeModal() {
@@ -621,6 +780,25 @@
             a.href = url;
             a.download = 'report.txt';
             a.click();
+        }
+
+        // Инициализация карты
+        function initMap() {
+            ymaps.ready(() => {
+                if (map) {
+                    map.destroy(); // Если уже есть, уничтожить, чтобы пересоздать
+                }
+                map = new ymaps.Map('map', {
+                    center: [55.7558, 37.6173],
+                    zoom: 10
+                });
+                map.container.fitToViewport();
+                console.log('Yandex Map initialized');
+                // Пере добавить существующие маркеры
+                map.geoObjects.removeAll();
+                markers = [];
+                calls.forEach(addMarker);
+            }).catch(err => console.error('Yandex Map init error:', err));
         }
     </script>
 </body>
