@@ -4,315 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ПсАТС - Автоматическая Телефонная Станция</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        /* Основные стили */
         body {
             font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
             background-color: #f0f4f8;
             color: #333;
-            transition: background-color 0.3s ease;
         }
-
-        .container {
-            max-width: none; /* Полная ширина */
-            margin: 0 auto;
-            padding: 20px;
+        .dark-mode {
+            background-color: #1e1e1e;
+            color: #f0f4f8;
         }
-
-        /* Форма логина - современный дизайн */
-        #login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            animation: gradient 15s ease infinite;
-        }
-
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .login-box {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 40px;
+        .card {
             border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 400px;
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease;
         }
-
-        .login-box:hover {
-            transform: translateY(-5px);
-        }
-
-        .login-box h1 {
-            margin-bottom: 20px;
-            color: #2c3e50;
-            font-weight: 500;
-        }
-
-        .login-box input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s ease;
-        }
-
-        .login-box input:focus {
-            box-shadow: 0 0 0 2px #4facfe;
-        }
-
-        .login-box button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s ease;
-        }
-
-        .login-box button:hover {
-            background: linear-gradient(135deg, #00f2fe, #4facfe);
-        }
-
-        .login-box .demo-info {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        /* Основной интерфейс */
-        #main-content {
-            display: none;
-        }
-
-        header {
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        header h2 {
-            margin: 0;
-            font-weight: 500;
-        }
-
-        #logout-btn {
-            background: #ff4757;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s ease;
-        }
-
-        #logout-btn:hover {
-            background: #ff6b81;
-        }
-
-        .dashboard {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .panel {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 20px;
-            flex: 1;
-            transition: box-shadow 0.3s ease;
-        }
-
-        .panel:hover {
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        }
-
-        #left-panel {
-            flex: 1 1 700px; /* Ещё шире для списка вызовов */
-        }
-
-        #right-panel {
-            flex: 2 1 800px; /* Больше места для карты */
-        }
-
-        .panel h3 {
-            margin-top: 0;
-            color: #2c3e50;
-            font-weight: 500;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 10px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        th {
-            background: #e9ecef;
-            font-weight: 500;
-        }
-
-        th:nth-child(1), td:nth-child(1) { /* ID */
-            width: 50px;
-        }
-
-        th:nth-child(2), td:nth-child(2) { /* Телефон */
-            width: 300px;
-            white-space: nowrap;
-        }
-
-        th:nth-child(3), td:nth-child(3) { /* Адрес */
-            width: 500px;
-        }
-
-        th:nth-child(4), td:nth-child(4) { /* Время */
-            width: 150px;
-        }
-
-        th:nth-child(5), td:nth-child(5) { /* Действия */
-            width: 200px;
-        }
-
-        .overtime {
-            color: #ff4757;
-            font-weight: bold;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-right: 10px;
-            font-weight: 500;
-            transition: transform 0.2s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-accept {
-            background: #2ed573;
-            color: white;
-        }
-
-        .btn-reject {
-            background: #ff4757;
-            color: white;
-        }
-
-        .btn-transfer {
-            background: #ffa502;
-            color: white;
-        }
-
-        .btn-start {
-            background: #3742fa;
-            color: white;
-        }
-
-        #map, #call-map {
-            height: 700px;
-            width: 100%;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        /* Модальное окно для текущего вызова */
-        #call-modal, #talk-modal, #transfer-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
         .modal-content {
-            background: white;
-            padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            width: 500px;
-            max-width: 90%;
-            text-align: center;
-            animation: fadeIn 0.3s ease;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .modal-content button {
-            margin: 10px;
-        }
-
-        /* Прокручиваемый список вызовов */
-        .call-list {
-            max-height: 400px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
-
-        /* Нижняя панель для логов */
-        #logs-panel {
-            background: white;
+        #map, #call-map {
+            height: 500px;
             border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        /* Responsive для карты снизу на малых экранах */
-        @media (max-width: 768px) {
-            .dashboard {
-                flex-direction: column;
-            }
-        }
-
-        /* Статистика панель */
-        #stats-panel {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-top: 20px;
         }
     </style>
     <script src="https://api-maps.yandex.ru/2.1/?apikey=1163255e-bb23-48e7-aeb1-be5c1cc1be33&lang=ru_RU"></script>
@@ -320,209 +32,167 @@
 <body>
 
     <!-- Форма логина -->
-    <div id="login-container">
-        <div class="login-box">
-            <h1>ПсАТС</h1>
-            <p>Современная система для управления вызовами в пожарной охране</p>
-            <input type="text" id="username" placeholder="Логин" required>
-            <input type="password" id="password" placeholder="Пароль" required>
-            <button id="login-btn">Войти</button>
-            <div class="demo-info">
-                <p>Демо-доступы:</p>
-                <p>Операторы: operator1 (Иван Иванов), operator2 (Петр Петров), operator3 (Сергей Сергеев) (пароль: 1234)</p>
-                <p>Дежурный руководитель: supervisor1 (Алексей Алексеев) (пароль: 1234)</p>
+    <div id="login-container" class="d-flex justify-content-center align-items-center vh-100 bg-gradient-primary">
+        <div class="card p-4 shadow-lg" style="width: 400px;">
+            <h3 class="text-center mb-4">ПсАТС</h3>
+            <input type="text" id="username" class="form-control mb-3" placeholder="Логин" required>
+            <input type="password" id="password" class="form-control mb-3" placeholder="Пароль" required>
+            <button id="login-btn" class="btn btn-primary w-100">Войти</button>
+            <div class="text-center mt-3 small">
+                Демо: operator1/1234 (диспетчер), supervisor1/1234 (администратор)
             </div>
         </div>
     </div>
 
     <!-- Основной контент -->
-    <div id="main-content">
-        <header>
-            <h2 id="user-info"></h2>
-            <button id="logout-btn">Выйти</button>
+    <div id="main-content" style="display: none;">
+        <header class="bg-gradient-primary text-white p-3 d-flex justify-content-between align-items-center">
+            <h4 id="user-info" class="m-0"></h4>
+            <div>
+                <button id="theme-toggle" class="btn btn-light me-2"><i class="fas fa-moon"></i></button>
+                <button id="logout-btn" class="btn btn-danger">Выйти</button>
+            </div>
         </header>
-        <div class="container dashboard">
-            <!-- Левая панель: Управление вызовами (для оператора) или Мониторинг (для супервизора) -->
-            <div class="panel" id="left-panel"></div>
-            <!-- Правая панель: Карта (для оператора) или Отчеты (для супервизора) -->
-            <div class="panel" id="right-panel"></div>
-        </div>
-        <!-- Панель статистики -->
-        <div class="container" id="stats-panel" style="display: none;"></div>
-        <!-- Нижняя панель: Логи -->
-        <div class="container" id="logs-panel" style="display: none;"></div>
-    </div>
-
-    <!-- Модальное окно для текущего вызова -->
-    <div id="call-modal">
-        <div class="modal-content">
-            <h3>Текущий вызов</h3>
-            <p id="call-info"></p>
-            <button id="start-call-btn" class="btn btn-start">Начать разговор</button>
-            <button id="transfer-call-btn" class="btn btn-transfer">Перевести вызов</button>
-            <button id="false-call-btn" class="btn btn-reject">Ложный вызов</button>
-            <button id="close-modal-btn" class="btn btn-reject">Закрыть</button>
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card p-3 mb-4" id="left-panel"></div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="card p-3 mb-4" id="right-panel"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card p-3" id="logs-panel" style="display: none;"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Модальное окно для разговора -->
-    <div id="talk-modal">
-        <div class="modal-content" style="width: 600px;">
-            <h3>Разговор с абонентом</h3>
-            <p id="talk-info"></p>
-            <div id="call-map" style="height: 400px; margin-bottom: 20px;"></div>
-            <label for="incident-type">Тип происшествия:</label>
-            <select id="incident-type">
-                <option value="пожар">Пожар</option>
-                <option value="авария">Авария</option>
-                <option value="чс">ЧС</option>
-                <option value="ложный">Ложный</option>
-            </select>
-            <label for="urgency">Срочность:</label>
-            <select id="urgency">
-                <option value="низкая">Низкая</option>
-                <option value="средняя">Средняя</option>
-                <option value="высокая">Высокая</option>
-            </select>
-            <label for="victims">Количество пострадавших:</label>
-            <input type="number" id="victims" min="0" placeholder="0">
-            <label for="object-type">Тип объекта:</label>
-            <select id="object-type">
-                <option value="здание">Здание</option>
-                <option value="транспорт">Транспорт</option>
-                <option value="природа">Природа</option>
-                <option value="другое">Другое</option>
-            </select>
-            <textarea id="notes" placeholder="Описание происшествия..." style="width: 100%; height: 100px; border-radius: 10px; padding: 10px; margin-top: 10px;"></textarea>
-            <button id="end-talk-btn" class="btn btn-accept">Завершить разговор</button>
-            <button id="close-talk-btn" class="btn btn-reject">Закрыть</button>
+    <!-- Модалки (используем Bootstrap modals) -->
+    <div class="modal fade" id="callModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Текущий вызов</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="call-info"></p>
+                </div>
+                <div class="modal-footer">
+                    <button id="start-call-btn" class="btn btn-primary">Начать разговор</button>
+                    <button id="transfer-call-btn" class="btn btn-warning">Перевести</button>
+                    <button id="false-call-btn" class="btn btn-danger">Ложный</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Модальное окно для перевода вызова -->
-    <div id="transfer-modal">
-        <div class="modal-content">
-            <h3>Перевод вызова</h3>
-            <p>Выберите оператора для перевода:</p>
-            <select id="transfer-select"></select>
-            <button id="confirm-transfer-btn" class="btn btn-transfer">Перевести</button>
-            <button id="close-transfer-btn" class="btn btn-reject">Отмена</button>
+    <div class="modal fade" id="talkModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Разговор с абонентом</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="talk-info"></p>
+                    <div id="call-map" class="mb-3"></div>
+                    <form id="incident-form">
+                        <div class="mb-3">
+                            <label for="incident-type" class="form-label">Тип происшествия</label>
+                            <select id="incident-type" class="form-select" required>
+                                <option value="">Выберите</option>
+                                <option value="пожар">Пожар</option>
+                                <option value="авария">Авария</option>
+                                <option value="чс">ЧС</option>
+                                <option value="ложный">Ложный</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="urgency" class="form-label">Срочность</label>
+                            <select id="urgency" class="form-select" required>
+                                <option value="">Выберите</option>
+                                <option value="низкая">Низкая</option>
+                                <option value="средняя">Средняя</option>
+                                <option value="высокая">Высокая</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="victims" class="form-label">Количество пострадавших</label>
+                            <input type="number" id="victims" class="form-control" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="object-type" class="form-label">Тип объекта</label>
+                            <select id="object-type" class="form-select" required>
+                                <option value="">Выберите</option>
+                                <option value="здание">Здание</option>
+                                <option value="транспорт">Транспорт</option>
+                                <option value="природа">Природа</option>
+                                <option value="другое">Другое</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cause" class="form-label">Причина (из ТЗ)</label>
+                            <select id="cause" class="form-select">
+                                <option value="">Выберите</option>
+                                <option value="неосторожность">Неосторожность с огнем</option>
+                                <option value="электро">Неисправность электрооборудования</option>
+                                <option value="поджог">Поджог</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="save-incident-btn" class="btn btn-success">Сохранить и завершить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="transferModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Перевод вызова</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вызов переведен.</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Bounding box Москвы (город)
-        const moscowBBox = {
-            latMin: 55.57,
-            latMax: 55.91,
-            lngMin: 37.35,
-            lngMax: 37.84
-        };
+        // Модуль аутентификации
+        const users = [
+            { username: 'operator1', password: '1234', role: 'диспетчер', name: 'Иван Иванов' },
+            { username: 'operator2', password: '1234', role: 'диспетчер', name: 'Петр Петров' },
+            { username: 'operator3', password: '1234', role: 'диспетчер', name: 'Сергей Сергеев' },
+            { username: 'supervisor1', password: '1234', role: 'администратор', name: 'Алексей Алексеев' },
+        ];
 
-        // Тестовые аккаунты с вымышленными именами
-        const users = {
-            operator1: { role: 'operator', name: 'Иван Иванов', password: '1234', status: 'свободен' },
-            operator2: { role: 'operator', name: 'Петр Петров', password: '1234', status: 'свободен' },
-            operator3: { role: 'operator', name: 'Сергей Сергеев', password: '1234', status: 'свободен' },
-            supervisor1: { role: 'supervisor', name: 'Алексей Алексеев', password: '1234' }
-        };
-
-        // Данные
-        let calls = []; // Список вызовов
-        let logs = []; // Логи
         let currentUser = null;
-        let map = null;
-        let callMap = null;
-        let markers = [];
-        let currentCall = null; // Для модалов
-        let timerInterval = null; // Для обновления времени
-
-        // Генерация случайного номера телефона (+7 (9xx) xxx-xx-xx)
-        function generatePhone() {
-            const operatorCode = '9' + Math.floor(Math.random() * 10) + '' + Math.floor(Math.random() * 10); // 900-999
-            const middle = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            const last = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            return `+7 (${operatorCode}) ${middle}-${last.slice(0,2)}-${last.slice(2)}`;
-        }
-
-        // Генерация случайного вызова (async для geocode)
-        async function generateCall() {
-            let lat = Math.random() * (moscowBBox.latMax - moscowBBox.latMin) + moscowBBox.latMin;
-            let lng = Math.random() * (moscowBBox.lngMax - moscowBBox.lngMin) + moscowBBox.lngMin;
-            let address = 'Неизвестный адрес'; // Fallback
-
-            try {
-                const res = await ymaps.geocode([lat, lng], { results: 1 });
-                address = res.geoObjects.get(0).getAddressLine() || address;
-            } catch (err) {
-                console.error('Geocode error:', err);
-            }
-
-            const call = {
-                id: calls.length + 1,
-                phone: generatePhone(),
-                address: address,
-                lat: lat,
-                lng: lng,
-                time: Date.now(),
-                status: 'ожидание',
-                operator: null,
-                notes: '',
-                incidentType: '',
-                urgency: '',
-                victims: 0,
-                objectType: ''
-            };
-            calls.push(call);
-            addLog(`Новый вызов #${call.id}: ${call.phone}, ${call.address}`);
-            addMarker(call);
-            updateUI();
-        }
-
-        // Добавление маркера на карту
-        function addMarker(call) {
-            const marker = new ymaps.Placemark([call.lat, call.lng], {
-                hintContent: call.address,
-                balloonContent: `Вызов #${call.id} от ${call.phone}, статус: ${call.status}`
-            });
-            map.geoObjects.add(marker);
-            markers.push(marker);
-            updateMarkerColor(marker, call.status);
-        }
-
-        // Обновление цвета маркера
-        function updateMarkerColor(marker, status) {
-            let color = 'blue';
-            if (status === 'принят') color = 'green';
-            if (status === 'ложный') color = 'red';
-            if (status === 'в работе') color = 'orange';
-            if (status === 'завершен') color = 'grey';
-            marker.options.set('preset', `islands#${color}CircleDotIcon`);
-        }
-
-        // Логи
-        function addLog(message) {
-            logs.push({ time: new Date().toLocaleString(), message });
-            updateUI();
-        }
+        let calls = JSON.parse(localStorage.getItem('calls')) || [];
+        let logs = JSON.parse(localStorage.getItem('logs')) || [];
+        let currentCall = null;
+        let ymap, callMap;
 
         // Логин
         document.getElementById('login-btn').addEventListener('click', () => {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const user = users[username];
-            if (user && user.password === password) {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const user = users.find(u => u.username === username && u.password === password);
+            if (user) {
                 currentUser = user;
                 document.getElementById('login-container').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
-                document.getElementById('user-info').innerText = `${user.name} (${user.role === 'operator' ? 'Оператор' : 'Дежурный Руководитель'})`;
-                addLog(`Вход: ${user.name}`);
-                updateUI();
-                // Начать генерацию вызовов реже
-                setInterval(() => generateCall(), Math.random() * 30000 + 10000); // 10-40 сек
-                // Запустить таймер для обновления времени
-                if (timerInterval) clearInterval(timerInterval);
-                timerInterval = setInterval(updateWaitTimes, 1000);
+                document.getElementById('user-info').textContent = `Привет, ${user.name} (${user.role})`;
+                initInterface();
+                addLog(`Пользователь ${user.name} вошел в систему`);
             } else {
                 alert('Неверный логин или пароль');
             }
@@ -530,368 +200,367 @@
 
         // Выход
         document.getElementById('logout-btn').addEventListener('click', () => {
-            currentUser = null;
-            document.getElementById('main-content').style.display = 'none';
-            document.getElementById('login-container').style.display = 'flex';
-            addLog('Выход');
-            if (timerInterval) clearInterval(timerInterval);
+            addLog(`Пользователь ${currentUser.name} вышел из системы`);
+            localStorage.setItem('calls', JSON.stringify(calls));
+            localStorage.setItem('logs', JSON.stringify(logs));
+            location.reload();
         });
 
-        // Обновление времени ожидания (каждую секунду, без перерендера)
-        function updateWaitTimes() {
-            calls.forEach(call => {
-                if (call.status === 'ожидание') {
-                    const waitTimeCell = document.getElementById(`wait-time-${call.id}`);
-                    if (waitTimeCell) {
-                        const waitTime = Math.floor((Date.now() - call.time) / 1000);
-                        waitTimeCell.innerText = `${waitTime} сек`;
-                        waitTimeCell.className = waitTime > 30 ? 'overtime' : '';
-                    }
-                }
-            });
-        }
+        // Темная тема
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
 
-        // Обновление UI (рендерит таблицу только один раз, время обновляется отдельно)
-        function updateUI() {
-            if (!currentUser) return;
-
-            const leftPanel = document.getElementById('left-panel');
-            const rightPanel = document.getElementById('right-panel');
-            const statsPanel = document.getElementById('stats-panel');
-            const logsPanel = document.getElementById('logs-panel');
-            statsPanel.style.display = 'block';
-            logsPanel.style.display = 'block';
-
-            leftPanel.innerHTML = '';
-            rightPanel.innerHTML = '';
-            statsPanel.innerHTML = '';
-            logsPanel.innerHTML = '';
-
-            if (currentUser.role === 'operator') {
-                // Левая панель: Очередь вызовов (прокручиваемая)
-                leftPanel.innerHTML = '<h3>Ожидающие вызовы</h3><div class="call-list"><table id="calls-table"><tr><th>ID</th><th>Телефон</th><th>Адрес</th><th>Время ожидания</th><th>Действия</th></tr></table></div>';
-                const table = document.getElementById('calls-table');
-                calls.filter(c => c.status === 'ожидание').forEach(call => {
-                    const row = document.createElement('tr');
-                    row.id = `call-row-${call.id}`;
-                    const waitTime = Math.floor((Date.now() - call.time) / 1000);
-                    const overtime = waitTime > 30 ? 'overtime' : ''; // >30 сек - красный
-                    row.innerHTML = `
-                        <td>${call.id}</td>
-                        <td>${call.phone}</td>
-                        <td>${call.address}</td>
-                        <td id="wait-time-${call.id}" class="${overtime}">${waitTime} сек</td>
-                        <td>
-                            <button class="btn btn-accept" onclick="acceptCall(${call.id})">Принять</button>
-                            <button class="btn btn-reject" onclick="rejectCall(${call.id})">Отклонить</button>
-                        </td>
-                    `;
-                    table.appendChild(row);
-                });
-
-                // Правая панель: Карта
-                rightPanel.innerHTML = '<h3>Карта вызовов</h3><div id="map"></div>';
-                initMap(); // Инициализация после создания div
-
-                // Панель статистики
-                const stats = calculateStats();
-                statsPanel.innerHTML = `<h3>Статистика</h3>
-                    <p>Вызовов сегодня: ${stats.total}</p>
-                    <p>Ложные: ${stats.false}</p>
-                    <p>В работе: ${stats.inWork}</p>
-                    <p>Среднее время ответа: ${stats.avgTime} сек</p>`;
-
-                // Нижняя панель: Логи
-                logsPanel.innerHTML = '<h3>Лог процесса</h3><ul></ul>';
-                const ul = logsPanel.querySelector('ul');
-                logs.slice(-10).forEach(log => { // Последние 10
-                    const li = document.createElement('li');
-                    li.innerText = `${log.time}: ${log.message}`;
-                    ul.appendChild(li);
-                });
-
-            } else if (currentUser.role === 'supervisor') {
-                // Левая панель: Мониторинг операторов + Принятые вызовы
-                leftPanel.innerHTML = '<h3>Мониторинг операторов</h3><table><tr><th>Имя</th><th>Статус</th><th>Вызовы</th></tr></table>';
-                const table = leftPanel.querySelector('table');
-                Object.keys(users).filter(u => users[u].role === 'operator').forEach(op => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${users[op].name}</td>
-                        <td>${users[op].status}</td>
-                        <td>${calls.filter(c => c.operator === users[op].name).length}</td>
-                    `;
-                    table.appendChild(row);
-                });
-
-                // Принятые вызовы
-                leftPanel.innerHTML += '<h3>Принятые в работу вызовы</h3><div class="call-list"><table><tr><th>ID</th><th>Телефон</th><th>Адрес</th><th>Статус</th><th>Действия</th></tr></table></div>';
-                const workTable = leftPanel.querySelectorAll('table')[1];
-                calls.filter(c => c.status === 'в работе').forEach(call => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${call.id}</td>
-                        <td>${call.phone}</td>
-                        <td>${call.address}</td>
-                        <td>${call.status}</td>
-                        <td><button class="btn btn-accept" onclick="completeCall(${call.id})">Завершить</button></td>
-                    `;
-                    workTable.appendChild(row);
-                });
-
-                // Правая панель: Отчеты
-                rightPanel.innerHTML = '<h3>Отчетность</h3><select id="report-period"><option>Сегодня</option><option>Вчера</option><option>Неделя</option><option>Месяц</option></select><button id="generate-report-btn">Сформировать</button><button id="export-report-btn">Экспорт</button><div id="report-preview"></div>';
-                document.getElementById('generate-report-btn').addEventListener('click', generateReport);
-                document.getElementById('export-report-btn').addEventListener('click', exportReport);
-
-                // Панель статистики
-                const stats = calculateStats();
-                statsPanel.innerHTML = `<h3>Общая статистика</h3>
-                    <p>Вызовов всего: ${stats.total}</p>
-                    <p>Ложные: ${stats.false}</p>
-                    <p>В работе: ${stats.inWork}</p>
-                    <p>Среднее время ответа: ${stats.avgTime} сек</p>`;
-
-                // Нижняя панель: Логи
-                logsPanel.innerHTML = '<h3>История действий</h3><ul></ul>';
-                const ul = logsPanel.querySelector('ul');
-                logs.forEach(log => {
-                    const li = document.createElement('li');
-                    li.innerText = `${log.time}: ${log.message}`;
-                    ul.appendChild(li);
-                });
+        // Инициализация интерфейса по роли
+        function initInterface() {
+            if (currentUser.role === 'диспетчер') {
+                initOperatorInterface();
+            } else {
+                initSupervisorInterface();
             }
-
-            // Обновление маркеров
-            markers.forEach((marker, i) => updateMarkerColor(marker, calls[i] ? calls[i].status : ''));
-            updateWaitTimes(); // Немедленное обновление времени после рендера
+            initMap();
+            simulateCalls();
         }
 
-        // Инициализация карты
-        function initMap() {
-            ymaps.ready(() => {
-                if (map) {
-                    map.destroy(); // Если уже есть, уничтожить, чтобы пересоздать
-                }
-                map = new ymaps.Map('map', {
-                    center: [55.7558, 37.6173],
-                    zoom: 10
-                });
-                map.container.fitToViewport();
-                console.log('Yandex Map initialized');
-                // Пере добавить существующие маркеры
-                map.geoObjects.removeAll();
-                markers = [];
-                calls.forEach(addMarker);
-            }).catch(err => console.error('Yandex Map init error:', err));
+        // Диспетчер: Список вызовов + Карта
+        function initOperatorInterface() {
+            const leftPanel = document.getElementById('left-panel');
+            leftPanel.innerHTML = `
+                <h3>Входящие вызовы</h3>
+                <table class="table table-hover" id="calls-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Телефон</th>
+                            <th>Адрес</th>
+                            <th>Время</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            `;
+
+            const rightPanel = document.getElementById('right-panel');
+            rightPanel.innerHTML = `
+                <h3>Карта вызовов</h3>
+                <div id="map"></div>
+            `;
+            updateCallsTable();
         }
 
-        // Инициализация карты в модале разговора
-        function initCallMap(call) {
-            ymaps.ready(() => {
-                if (callMap) {
-                    callMap.destroy();
+        // Администратор: Мониторинг + Отчеты + Логи
+        function initSupervisorInterface() {
+            const leftPanel = document.getElementById('left-panel');
+            leftPanel.innerHTML = `
+                <h3>Мониторинг вызовов</h3>
+                <table class="table table-hover" id="monitor-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Телефон</th>
+                            <th>Адрес</th>
+                            <th>Статус</th>
+                            <th>Оператор</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            `;
+            updateMonitorTable();
+
+            const rightPanel = document.getElementById('right-panel');
+            rightPanel.innerHTML = `
+                <h3>Отчеты</h3>
+                <div class="mb-3">
+                    <label for="report-start" class="form-label">Дата начала</label>
+                    <input type="date" id="report-start" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="report-end" class="form-label">Дата конца</label>
+                    <input type="date" id="report-end" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="report-type" class="form-label">Тип</label>
+                    <select id="report-type" class="form-select">
+                        <option value="">Все</option>
+                        <option value="пожар">Пожар</option>
+                        <option value="авария">Авария</option>
+                        <option value="чс">ЧС</option>
+                    </select>
+                </div>
+                <button id="generate-report-btn" class="btn btn-primary">Генерировать отчет</button>
+                <div id="report-output" class="mt-3"></div>
+            `;
+
+            document.getElementById('generate-report-btn').addEventListener('click', generateReport);
+
+            document.getElementById('logs-panel').style.display = 'block';
+            document.getElementById('logs-panel').innerHTML = `
+                <h3>Логи действий</h3>
+                <ul id="logs-list" class="list-group"></ul>
+            `;
+            updateLogs();
+
+            document.getElementById('stats-panel').style.display = 'block';
+            document.getElementById('stats-panel').innerHTML = `
+                <h3>Статистика</h3>
+                <p id="stats-info"></p>
+            `;
+            updateStats();
+        }
+
+        // Симуляция вызовов
+        function simulateCalls() {
+            setInterval(() => {
+                if (currentUser.role === 'диспетчер' && calls.filter(c => !c.status).length < 5) {
+                    const newCall = {
+                        id: calls.length + 1,
+                        phone: '+7' + Math.floor(Math.random() * 10000000000).toString().padStart(10, '0'),
+                        address: `Ул. ${['Ленина', 'Московская', 'Пушкина'][Math.floor(Math.random() * 3)]}, д. ${Math.floor(Math.random() * 100)}`,
+                        time: Date.now(),
+                        status: null,
+                        operator: null,
+                        incidentType: null,
+                        urgency: null,
+                        victims: 0,
+                        objectType: null,
+                        cause: null,
+                        lat: 55.7558 + Math.random() * 0.1 - 0.05,
+                        lon: 37.6173 + Math.random() * 0.1 - 0.05
+                    };
+                    calls.push(newCall);
+                    updateCallsTable();
+                    updateMonitorTable();
+                    addLog(`Новый вызов ID ${newCall.id} от ${newCall.phone}`);
+                    updateStats();
+                    addMarker(newCall);
                 }
-                callMap = new ymaps.Map('call-map', {
-                    center: [call.lat, call.lng],
-                    zoom: 15
-                });
-                const marker = new ymaps.Placemark([call.lat, call.lng], {
-                    hintContent: call.address
-                });
-                callMap.geoObjects.add(marker);
-                callMap.container.fitToViewport();
+            }, 10000);
+        }
+
+        // Обновление таблицы вызовов для диспетчера
+        function updateCallsTable() {
+            const tbody = document.getElementById('calls-table').querySelector('tbody');
+            tbody.innerHTML = '';
+            calls.filter(c => !c.status).forEach(call => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${call.id}</td>
+                    <td>${call.phone}</td>
+                    <td>${call.address}</td>
+                    <td>${new Date(call.time).toLocaleTimeString()}</td>
+                    <td>
+                        <button class="btn btn-success btn-sm accept-call" data-id="${call.id}">Принять</button>
+                        <button class="btn btn-danger btn-sm reject-call" data-id="${call.id}">Отклонить</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.querySelectorAll('.accept-call').forEach(btn => {
+                btn.addEventListener('click', acceptCall);
+            });
+            document.querySelectorAll('.reject-call').forEach(btn => {
+                btn.addEventListener('click', rejectCall);
             });
         }
 
         // Принять вызов
-        window.acceptCall = function(id) {
-            const call = calls.find(c => c.id === id);
-            if (call) {
-                call.status = 'принят';
-                call.operator = currentUser.name;
-                currentUser.status = 'занят';
-                addLog(`Принят вызов #${id} оператором ${currentUser.name}`);
-                showCallModal(call);
-                updateUI();
-            }
-        };
+        function acceptCall(e) {
+            const id = parseInt(e.target.dataset.id);
+            currentCall = calls.find(c => c.id === id);
+            currentCall.operator = currentUser.name;
+            currentCall.status = 'в обработке';
+            addLog(`Вызов ID ${id} принят диспетчером ${currentUser.name}`);
+            updateCallsTable();
+            updateMonitorTable();
+            updateStats();
+            showCallModal();
+        }
 
         // Отклонить вызов
-        window.rejectCall = function(id) {
-            if (confirm('Подтвердите отклонение вызова?')) {
+        function rejectCall(e) {
+            if (confirm('Подтвердите отклонение?')) {
+                const id = parseInt(e.target.dataset.id);
                 const call = calls.find(c => c.id === id);
-                if (call) {
-                    call.status = 'отклонен';
-                    addLog(`Отклонен вызов #${id}`);
-                    updateUI();
-                }
+                call.status = 'отклонен';
+                addLog(`Вызов ID ${id} отклонен диспетчером ${currentUser.name}`);
+                updateCallsTable();
+                updateMonitorTable();
+                updateStats();
             }
-        };
+        }
 
-        // Завершить вызов (для супервизора)
-        window.completeCall = function(id) {
-            const call = calls.find(c => c.id === id);
-            if (call) {
-                call.status = 'завершен';
-                addLog(`Завершен вызов #${id}`);
-                updateUI();
+        // Модалка вызова
+        function showCallModal() {
+            document.getElementById('call-info').innerHTML = `
+                Телефон: ${currentCall.phone}<br>
+                Адрес: ${currentCall.address}<br>
+                Время: ${new Date(currentCall.time).toLocaleString()}
+            `;
+            const modal = new bootstrap.Modal(document.getElementById('callModal'));
+            modal.show();
+
+            document.getElementById('start-call-btn').addEventListener('click', startTalk);
+            document.getElementById('transfer-call-btn').addEventListener('click', transferCall);
+            document.getElementById('false-call-btn').addEventListener('click', falseCall);
+        }
+
+        // Начать разговор
+        function startTalk() {
+            bootstrap.Modal.getInstance(document.getElementById('callModal')).hide();
+            document.getElementById('talk-info').innerHTML = `
+                Телефон: ${currentCall.phone}<br>
+                Адрес: ${currentCall.address}
+            `;
+            const modal = new bootstrap.Modal(document.getElementById('talkModal'));
+            modal.show();
+            initCallMap(currentCall.lat, currentCall.lon);
+
+            document.getElementById('save-incident-btn').addEventListener('click', saveIncident);
+        }
+
+        // Сохранить инцидент
+        function saveIncident() {
+            const form = document.getElementById('incident-form');
+            if (form.checkValidity()) {
+                currentCall.incidentType = document.getElementById('incident-type').value;
+                currentCall.urgency = document.getElementById('urgency').value;
+                currentCall.victims = parseInt(document.getElementById('victims').value) || 0;
+                currentCall.objectType = document.getElementById('object-type').value;
+                currentCall.cause = document.getElementById('cause').value;
+                currentCall.status = 'завершен';
+                addLog(`Вызов ID ${currentCall.id} завершен: Тип - ${currentCall.incidentType}, Жертвы - ${currentCall.victims}`);
+                updateMonitorTable();
+                updateStats();
+                bootstrap.Modal.getInstance(document.getElementById('talkModal')).hide();
+            } else {
+                form.reportValidity();
             }
-        };
-
-        // Показать модал для вызова
-        function showCallModal(call) {
-            currentCall = call;
-            document.getElementById('call-info').innerText = `Вызов #${call.id} от ${call.phone}, адрес: ${call.address}`;
-            document.getElementById('call-modal').style.display = 'flex';
-
-            document.getElementById('start-call-btn').onclick = () => {
-                closeModal();
-                showTalkModal(call);
-            };
-
-            document.getElementById('transfer-call-btn').onclick = () => {
-                closeModal();
-                showTransferModal(call);
-            };
-
-            document.getElementById('false-call-btn').onclick = () => {
-                call.status = 'ложный';
-                currentUser.status = 'свободен';
-                addLog(`Ложный вызов #${call.id}`);
-                updateUI();
-                closeModal();
-            };
-
-            document.getElementById('close-modal-btn').onclick = closeModal;
         }
 
-        // Показать модал для разговора
-        function showTalkModal(call) {
-            currentCall = call;
-            document.getElementById('talk-info').innerText = `Вызов #${call.id} от ${call.phone}, адрес: ${call.address}`;
-            document.getElementById('notes').value = call.notes || '';
-            document.getElementById('incident-type').value = call.incidentType || 'пожар';
-            document.getElementById('urgency').value = call.urgency || 'средняя';
-            document.getElementById('victims').value = call.victims || 0;
-            document.getElementById('object-type').value = call.objectType || 'здание';
-            document.getElementById('talk-modal').style.display = 'flex';
-            initCallMap(call);
-
-            document.getElementById('end-talk-btn').onclick = () => {
-                call.notes = document.getElementById('notes').value;
-                call.incidentType = document.getElementById('incident-type').value;
-                call.urgency = document.getElementById('urgency').value;
-                call.victims = parseInt(document.getElementById('victims').value) || 0;
-                call.objectType = document.getElementById('object-type').value;
-                call.status = 'в работе';
-                addLog(`Завершен разговор по вызову #${call.id}, принят в работу. Тип: ${call.incidentType}, Срочность: ${call.urgency}, Пострадавшие: ${call.victims}, Объект: ${call.objectType}`);
-                currentUser.status = 'занят';
-                updateUI();
-                closeTalkModal();
-            };
-
-            document.getElementById('close-talk-btn').onclick = closeTalkModal;
+        // Перевести вызов
+        function transferCall() {
+            currentCall.status = 'переведен';
+            addLog(`Вызов ID ${currentCall.id} переведен`);
+            updateCallsTable();
+            updateMonitorTable();
+            updateStats();
+            bootstrap.Modal.getInstance(document.getElementById('callModal')).hide();
+            const modal = new bootstrap.Modal(document.getElementById('transferModal'));
+            modal.show();
+            setTimeout(() => modal.hide(), 2000);
         }
 
-        function closeTalkModal() {
-            document.getElementById('talk-modal').style.display = 'none';
-            if (callMap) callMap.destroy();
-            callMap = null;
-            if (currentUser.role === 'operator') currentUser.status = 'свободен';
-            updateUI();
+        // Ложный вызов
+        function falseCall() {
+            currentCall.status = 'ложный';
+            addLog(`Вызов ID ${currentCall.id} ложный`);
+            updateCallsTable();
+            updateMonitorTable();
+            updateStats();
+            bootstrap.Modal.getInstance(document.getElementById('callModal')).hide();
         }
 
-        // Показать модал для перевода
-        function showTransferModal(call) {
-            currentCall = call;
-            const select = document.getElementById('transfer-select');
-            select.innerHTML = '';
-            Object.keys(users).filter(u => users[u].role === 'operator' && users[u].name !== currentUser.name && users[u].status === 'свободен').forEach(op => {
-                const option = document.createElement('option');
-                option.value = op;
-                option.innerText = users[op].name;
-                select.appendChild(option);
+        // Мониторинг для администратора
+        function updateMonitorTable() {
+            const tbody = document.getElementById('monitor-table').querySelector('tbody');
+            tbody.innerHTML = '';
+            calls.forEach(call => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${call.id}</td>
+                    <td>${call.phone}</td>
+                    <td>${call.address}</td>
+                    <td>${call.status || 'новый'}</td>
+                    <td>${call.operator || 'не назначен'}</td>
+                `;
+                tbody.appendChild(tr);
             });
-            document.getElementById('transfer-modal').style.display = 'flex';
-
-            document.getElementById('confirm-transfer-btn').onclick = () => {
-                const targetOp = select.value;
-                if (targetOp) {
-                    call.operator = users[targetOp].name;
-                    call.status = 'принят'; // Или 'ожидание', но предположим перевод как принятый новым
-                    addLog(`Вызов #${call.id} переведен на ${users[targetOp].name}`);
-                    currentUser.status = 'свободен';
-                    users[targetOp].status = 'занят';
-                    updateUI();
-                    closeTransferModal();
-                }
-            };
-
-            document.getElementById('close-transfer-btn').onclick = closeTransferModal;
-        }
-
-        function closeTransferModal() {
-            document.getElementById('transfer-modal').style.display = 'none';
-            if (currentUser.role === 'operator') currentUser.status = 'свободен';
-            updateUI();
-        }
-
-        function closeModal() {
-            document.getElementById('call-modal').style.display = 'none';
-            if (currentUser.role === 'operator') currentUser.status = 'свободен';
-            updateUI();
-        }
-
-        // Статистика
-        function calculateStats() {
-            const total = calls.length;
-            const falseCalls = calls.filter(c => c.status === 'ложный').length;
-            const inWork = calls.filter(c => c.status === 'в работе').length;
-            const avgTime = calls.reduce((sum, c) => sum + (Date.now() - c.time) / 1000, 0) / (total || 1);
-            return { total, false: falseCalls, inWork, avgTime: avgTime.toFixed(2) };
         }
 
         // Генерация отчета
         function generateReport() {
-            const period = document.getElementById('report-period').value;
-            // Симуляция: просто список вызовов
-            let report = `Отчет за ${period}:\n`;
-            calls.forEach(c => {
-                report += `Вызов #${c.id}: ${c.phone}, ${c.address}, статус: ${c.status}\n`;
+            const start = new Date(document.getElementById('report-start').value);
+            const end = new Date(document.getElementById('report-end').value);
+            const type = document.getElementById('report-type').value;
+
+            const filtered = calls.filter(c => {
+                const callDate = new Date(c.time);
+                return (!start || callDate >= start) && (!end || callDate <= end) && (!type || c.incidentType === type);
             });
-            document.getElementById('report-preview').innerText = report;
+
+            let output = `<h5>Отчет (${filtered.length} вызовов)</h5>`;
+            output += '<table class="table"><thead><tr><th>ID</th><th>Тип</th><th>Жертвы</th><th>Срочность</th><th>Объект</th><th>Причина</th></tr></thead><tbody>';
+            filtered.forEach(c => {
+                output += `<tr><td>${c.id}</td><td>${c.incidentType || '-'}</td><td>${c.victims || 0}</td><td>${c.urgency || '-'}</td><td>${c.objectType || '-'}</td><td>${c.cause || '-'}</td></tr>`;
+            });
+            output += '</tbody></table>';
+            document.getElementById('report-output').innerHTML = output;
         }
 
-        // Экспорт отчета
-        function exportReport() {
-            const report = document.getElementById('report-preview').innerText;
-            const blob = new Blob([report], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'report.txt';
-            a.click();
+        // Логи
+        function addLog(message) {
+            logs.push({ time: Date.now(), message });
+            updateLogs();
+        }
+
+        function updateLogs() {
+            const list = document.getElementById('logs-list');
+            if (list) {
+                list.innerHTML = '';
+                logs.forEach(log => {
+                    const li = document.createElement('li');
+                    li.classList.add('list-group-item');
+                    li.textContent = `[${new Date(log.time).toLocaleString()}] ${log.message}`;
+                    list.appendChild(li);
+                });
+            }
+        }
+
+        // Статистика
+        function updateStats() {
+            const total = calls.length;
+            const processed = calls.filter(c => c.status).length;
+            const victims = calls.reduce((sum, c) => sum + (c.victims || 0), 0);
+            const fires = calls.filter(c => c.incidentType === 'пожар').length;
+            document.getElementById('stats-info').innerHTML = `
+                Всего вызовов: ${total}<br>
+                Обработано: ${processed}<br>
+                Пострадавших: ${victims}<br>
+                Пожаров: ${fires}
+            `;
         }
 
         // Инициализация карты
         function initMap() {
             ymaps.ready(() => {
-                if (map) {
-                    map.destroy(); // Если уже есть, уничтожить, чтобы пересоздать
-                }
-                map = new ymaps.Map('map', {
+                ymap = new ymaps.Map('map', {
                     center: [55.7558, 37.6173],
                     zoom: 10
                 });
-                map.container.fitToViewport();
-                console.log('Yandex Map initialized');
-                // Пере добавить существующие маркеры
-                map.geoObjects.removeAll();
-                markers = [];
                 calls.forEach(addMarker);
-            }).catch(err => console.error('Yandex Map init error:', err));
+            });
+        }
+
+        function addMarker(call) {
+            if (ymap) {
+                const marker = new ymaps.Placemark([call.lat, call.lon], { hintContent: `Вызов ID ${call.id}` });
+                ymap.geoObjects.add(marker);
+            }
+        }
+
+        function initCallMap(lat, lon) {
+            ymaps.ready(() => {
+                callMap = new ymaps.Map('call-map', {
+                    center: [lat, lon],
+                    zoom: 15
+                });
+                const marker = new ymaps.Placemark([lat, lon]);
+                callMap.geoObjects.add(marker);
+            });
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
