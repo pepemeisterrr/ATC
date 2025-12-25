@@ -371,7 +371,20 @@
             <h3>Разговор с абонентом</h3>
             <p id="talk-info"></p>
             <div id="call-map" style="height: 400px; margin-bottom: 20px;"></div>
-            <textarea id="notes" placeholder="Заметки по звонку..." style="width: 100%; height: 100px; border-radius: 10px; padding: 10px;"></textarea>
+            <label for="incident-type">Тип происшествия:</label>
+            <select id="incident-type">
+                <option value="пожар">Пожар</option>
+                <option value="авария">Авария</option>
+                <option value="чс">ЧС</option>
+                <option value="ложный">Ложный</option>
+            </select>
+            <label for="urgency">Срочность:</label>
+            <select id="urgency">
+                <option value="низкая">Низкая</option>
+                <option value="средняя">Средняя</option>
+                <option value="высокая">Высокая</option>
+            </select>
+            <textarea id="notes" placeholder="Описание происшествия..." style="width: 100%; height: 100px; border-radius: 10px; padding: 10px; margin-top: 10px;"></textarea>
             <button id="end-talk-btn" class="btn btn-accept">Завершить разговор</button>
             <button id="close-talk-btn" class="btn btn-reject">Закрыть</button>
         </div>
@@ -445,7 +458,9 @@
                 time: Date.now(),
                 status: 'ожидание',
                 operator: null,
-                notes: ''
+                notes: '',
+                incidentType: '',
+                urgency: ''
             };
             calls.push(call);
             addLog(`Новый вызов #${call.id}: ${call.phone}, ${call.address}`);
@@ -743,13 +758,17 @@
             currentCall = call;
             document.getElementById('talk-info').innerText = `Вызов #${call.id} от ${call.phone}, адрес: ${call.address}`;
             document.getElementById('notes').value = call.notes || '';
+            document.getElementById('incident-type').value = call.incidentType || 'пожар';
+            document.getElementById('urgency').value = call.urgency || 'средняя';
             document.getElementById('talk-modal').style.display = 'flex';
             initCallMap(call);
 
             document.getElementById('end-talk-btn').onclick = () => {
                 call.notes = document.getElementById('notes').value;
+                call.incidentType = document.getElementById('incident-type').value;
+                call.urgency = document.getElementById('urgency').value;
                 call.status = 'в работе';
-                addLog(`Завершен разговор по вызову #${call.id}, принят в работу`);
+                addLog(`Завершен разговор по вызову #${call.id}, принят в работу. Тип: ${call.incidentType}, Срочность: ${call.urgency}`);
                 currentUser.status = 'занят';
                 updateUI();
                 closeTalkModal();
