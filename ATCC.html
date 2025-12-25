@@ -295,16 +295,6 @@
         let map = null;
         let markers = [];
 
-        // Инициализация карты с проверкой
-        ymaps.ready(() => {
-            map = new ymaps.Map('map', {
-                center: [55.7558, 37.6173],
-                zoom: 10
-            });
-            setTimeout(() => map.container.fitToViewport(), 100); // Фикс рендера
-            console.log('Yandex Map initialized successfully');
-        }).catch(err => console.error('Yandex Map init error:', err));
-
         // Генерация случайного номера телефона
         function generatePhone() {
             return '+7 (' + Math.floor(Math.random() * 900 + 100) + ') ' + Math.floor(Math.random() * 900 + 100) + '-' + Math.floor(Math.random() * 90 + 10);
@@ -437,7 +427,7 @@
 
                 // Правая панель: Карта
                 rightPanel.innerHTML = '<h3>Карта вызовов</h3><div id="map"></div>';
-                ymaps.ready(() => map.container.fitToViewport()); // Обновить карту
+                initMap(); // Инициализация после создания div
 
                 // Нижняя панель: Логи
                 logsPanel.innerHTML = '<h3>Лог процесса</h3><ul></ul>';
@@ -502,6 +492,24 @@
 
             // Обновление маркеров
             markers.forEach((marker, i) => updateMarkerColor(marker, calls[i] ? calls[i].status : ''));
+        }
+
+        // Инициализация карты
+        function initMap() {
+            ymaps.ready(() => {
+                if (map) {
+                    map.destroy(); // Если уже есть, уничтожить
+                }
+                map = new ymaps.Map('map', {
+                    center: [55.7558, 37.6173],
+                    zoom: 10
+                });
+                map.container.fitToViewport();
+                console.log('Yandex Map initialized');
+                // Пере добавить маркеры, если нужно
+                markers = [];
+                calls.forEach(addMarker);
+            }).catch(err => console.error('Yandex Map init error:', err));
         }
 
         // Принять вызов
