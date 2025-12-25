@@ -199,6 +199,21 @@
         .modal-content button {
             margin: 10px;
         }
+
+        /* Прокручиваемый список вызовов */
+        .call-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Нижняя панель для логов */
+        #logs-panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
     </style>
     <script src="https://api-maps.yandex.ru/2.1/?apikey=1163255e-bb23-48e7-aeb1-be5c1cc1be33&lang=ru_RU"></script>
 </head>
@@ -214,8 +229,8 @@
             <button id="login-btn">Войти</button>
             <div class="demo-info">
                 <p>Демо-доступы:</p>
-                <p>Операторы: operator1, operator2, operator3 (пароль: 1234)</p>
-                <p>Дежурный руководитель: supervisor1 (пароль: 1234)</p>
+                <p>Операторы: operator1 (Иван Иванов), operator2 (Петр Петров), operator3 (Сергей Сергеев) (пароль: 1234)</p>
+                <p>Дежурный руководитель: supervisor1 (Алексей Алексеев) (пароль: 1234)</p>
             </div>
         </div>
     </div>
@@ -229,11 +244,11 @@
         <div class="container dashboard">
             <!-- Левая панель: Управление вызовами (для оператора) или Мониторинг (для супервизора) -->
             <div class="panel" id="left-panel"></div>
-            <!-- Правая панель: Логи или Отчеты -->
+            <!-- Правая панель: Карта (для оператора) или Отчеты (для супервизора) -->
             <div class="panel" id="right-panel"></div>
-            <!-- Карта (для оператора) -->
-            <div class="panel" id="map-panel" style="flex: 100%;"><div id="map"></div></div>
         </div>
+        <!-- Нижняя панель: Логи -->
+        <div class="container" id="logs-panel" style="display: none;"></div>
     </div>
 
     <!-- Модальное окно для текущего вызова -->
@@ -243,6 +258,7 @@
             <p id="call-info"></p>
             <button id="start-call-btn" class="btn btn-start">Начать разговор</button>
             <button id="transfer-call-btn" class="btn btn-transfer">Перевести вызов</button>
+            <button id="false-call-btn" class="btn btn-reject">Ложный вызов</button>
             <button id="close-modal-btn" class="btn btn-reject">Закрыть</button>
         </div>
     </div>
@@ -256,12 +272,12 @@
             lngMax: 37.84
         };
 
-        // Тестовые аккаунты
+        // Тестовые аккаунты с вымышленными именами
         const users = {
-            operator1: { role: 'operator', name: 'Оператор 1', password: '1234', status: 'свободен' },
-            operator2: { role: 'operator', name: 'Оператор 2', password: '1234', status: 'свободен' },
-            operator3: { role: 'operator', name: 'Оператор 3', password: '1234', status: 'свободен' },
-            supervisor1: { role: 'supervisor', name: 'Дежурный Руководитель 1', password: '1234' }
+            operator1: { role: 'operator', name: 'Иван Иванов', password: '1234', status: 'свободен' },
+            operator2: { role: 'operator', name: 'Петр Петров', password: '1234', status: 'свободен' },
+            operator3: { role: 'operator', name: 'Сергей Сергеев', password: '1234', status: 'свободен' },
+            supervisor1: { role: 'supervisor', name: 'Алексей Алексеев', password: '1234' }
         };
 
         // Данные
@@ -310,7 +326,7 @@
                 operator: null
             };
             calls.push(call);
-            addLog(`Новый вызов: ${call.phone}, ${call.address}`);
+            addLog(`Новый вызов #${call.id}: ${call.phone}, ${call.address}`);
             addMarker(call);
             updateUI();
         }
@@ -319,7 +335,7 @@
         function addMarker(call) {
             const marker = new ymaps.Placemark([call.lat, call.lng], {
                 hintContent: call.address,
-                balloonContent: `Вызов от ${call.phone}, статус: ${call.status}`
+                balloonContent: `Вызов #${call.id} от ${call.phone}, статус: ${call.status}`
             });
             map.geoObjects.add(marker);
             markers.push(marker);
@@ -332,6 +348,7 @@
             if (status === 'принят') color = 'green';
             if (status === 'ложный') color = 'red';
             if (status === 'в работе') color = 'orange';
+            if (status === 'завершен') color = 'grey';
             marker.options.set('preset', `islands#${color}CircleDotIcon`);
         }
 
@@ -353,8 +370,8 @@
                 document.getElementById('user-info').innerText = `${user.name} (${user.role === 'operator' ? 'Оператор' : 'Дежурный Руководитель'})`;
                 addLog(`Вход: ${user.name}`);
                 updateUI();
-                // Начать генерацию вызовов
-                setInterval(() => generateCall(), Math.random() * 10000 + 5000); // Каждые 5-15 сек
+                // Начать генерацию вызовов реже
+                setInterval(() => generateCall(), Math.random() * 30000 + 10000); // 10-40 сек
             } else {
                 alert('Неверный логин или пароль');
             }
@@ -374,20 +391,23 @@
 
             const leftPanel = document.getElementById('left-panel');
             const rightPanel = document.getElementById('right-panel');
-            const mapPanel = document.getElementById('map-panel');
+            const logsPanel = document.getElementById('logs-panel');
+            logsPanel.style.display = 'block';
 
             leftPanel.innerHTML = '';
             rightPanel.innerHTML = '';
+            logsPanel.innerHTML = '';
 
             if (currentUser.role === 'operator') {
-                // Левая панель: Очередь вызовов
-                leftPanel.innerHTML = '<h3>Ожидающие вызовы</h3><table><tr><th>Телефон</th><th>Адрес</th><th>Время ожидания</th><th>Действия</th></tr></table>';
+                // Левая панель: Очередь вызовов (прокручиваемая) + статистика
+                leftPanel.innerHTML = '<h3>Ожидающие вызовы</h3><div class="call-list"><table><tr><th>ID</th><th>Телефон</th><th>Адрес</th><th>Время ожидания</th><th>Действия</th></tr></table></div>';
                 const table = leftPanel.querySelector('table');
                 calls.filter(c => c.status === 'ожидание').forEach(call => {
                     const row = document.createElement('tr');
                     const waitTime = Math.floor((Date.now() - call.time) / 1000);
                     const overtime = waitTime > 30 ? 'overtime' : ''; // >30 сек - красный
                     row.innerHTML = `
+                        <td>${call.id}</td>
                         <td>${call.phone}</td>
                         <td>${call.address}</td>
                         <td class="${overtime}">${waitTime} сек</td>
@@ -399,19 +419,7 @@
                     table.appendChild(row);
                 });
 
-                // Правая панель: Логи
-                rightPanel.innerHTML = '<h3>Лог процесса</h3><ul></ul>';
-                const ul = rightPanel.querySelector('ul');
-                logs.slice(-10).forEach(log => { // Последние 10
-                    const li = document.createElement('li');
-                    li.innerText = `${log.time}: ${log.message}`;
-                    ul.appendChild(li);
-                });
-
-                // Карта видна
-                mapPanel.style.display = 'block';
-
-                // Статистика
+                // Статистика под списком
                 const stats = calculateStats();
                 leftPanel.innerHTML += `<h3>Статистика</h3>
                     <p>Вызовов сегодня: ${stats.total}</p>
@@ -419,8 +427,21 @@
                     <p>В работе: ${stats.inWork}</p>
                     <p>Среднее время ответа: ${stats.avgTime} сек</p>`;
 
+                // Правая панель: Карта
+                rightPanel.innerHTML = '<h3>Карта вызовов</h3><div id="map"></div>';
+                ymaps.ready(() => map.container.fitToViewport()); // Обновить карту
+
+                // Нижняя панель: Логи
+                logsPanel.innerHTML = '<h3>Лог процесса</h3><ul></ul>';
+                const ul = logsPanel.querySelector('ul');
+                logs.slice(-10).forEach(log => { // Последние 10
+                    const li = document.createElement('li');
+                    li.innerText = `${log.time}: ${log.message}`;
+                    ul.appendChild(li);
+                });
+
             } else if (currentUser.role === 'supervisor') {
-                // Левая панель: Мониторинг операторов
+                // Левая панель: Мониторинг операторов + Принятые вызовы
                 leftPanel.innerHTML = '<h3>Мониторинг операторов</h3><table><tr><th>Имя</th><th>Статус</th><th>Вызовы</th></tr></table>';
                 const table = leftPanel.querySelector('table');
                 Object.keys(users).filter(u => users[u].role === 'operator').forEach(op => {
@@ -433,26 +454,41 @@
                     table.appendChild(row);
                 });
 
-                // Правая панель: Отчеты
-                rightPanel.innerHTML = '<h3>Отчетность</h3><select id="report-period"><option>Сегодня</option><option>Вчера</option><option>Неделя</option><option>Месяц</option></select><button id="generate-report-btn">Сформировать</button><button id="export-report-btn">Экспорт</button><div id="report-preview"></div>';
-                document.getElementById('generate-report-btn').addEventListener('click', generateReport);
-                document.getElementById('export-report-btn').addEventListener('click', exportReport);
-
-                // Скрыть карту для супервизора
-                mapPanel.style.display = 'none';
-
                 // Принятые вызовы
-                leftPanel.innerHTML += '<h3>Принятые в работу вызовы</h3><table><tr><th>Телефон</th><th>Адрес</th><th>Статус</th><th>Действия</th></tr></table>';
+                leftPanel.innerHTML += '<h3>Принятые в работу вызовы</h3><div class="call-list"><table><tr><th>ID</th><th>Телефон</th><th>Адрес</th><th>Статус</th><th>Действия</th></tr></table></div>';
                 const workTable = leftPanel.querySelectorAll('table')[1];
                 calls.filter(c => c.status === 'в работе').forEach(call => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
+                        <td>${call.id}</td>
                         <td>${call.phone}</td>
                         <td>${call.address}</td>
                         <td>${call.status}</td>
                         <td><button class="btn btn-accept" onclick="completeCall(${call.id})">Завершить</button></td>
                     `;
                     workTable.appendChild(row);
+                });
+
+                // Общая статистика для супервизора
+                const stats = calculateStats();
+                leftPanel.innerHTML += `<h3>Общая статистика</h3>
+                    <p>Вызовов всего: ${stats.total}</p>
+                    <p>Ложные: ${stats.false}</p>
+                    <p>В работе: ${stats.inWork}</p>
+                    <p>Среднее время ответа: ${stats.avgTime} сек</p>`;
+
+                // Правая панель: Отчеты
+                rightPanel.innerHTML = '<h3>Отчетность</h3><select id="report-period"><option>Сегодня</option><option>Вчера</option><option>Неделя</option><option>Месяц</option></select><button id="generate-report-btn">Сформировать</button><button id="export-report-btn">Экспорт</button><div id="report-preview"></div>';
+                document.getElementById('generate-report-btn').addEventListener('click', generateReport);
+                document.getElementById('export-report-btn').addEventListener('click', exportReport);
+
+                // Логи в нижней панели для супервизора тоже
+                logsPanel.innerHTML = '<h3>История действий</h3><ul></ul>';
+                const ul = logsPanel.querySelector('ul');
+                logs.forEach(log => {
+                    const li = document.createElement('li');
+                    li.innerText = `${log.time}: ${log.message}`;
+                    ul.appendChild(li);
                 });
             }
 
@@ -467,7 +503,7 @@
                 call.status = 'принят';
                 call.operator = currentUser.name;
                 currentUser.status = 'занят';
-                addLog(`Принят вызов ${id}`);
+                addLog(`Принят вызов #${id} оператором ${currentUser.name}`);
                 showCallModal(call);
                 updateUI();
             }
@@ -478,7 +514,7 @@
             const call = calls.find(c => c.id === id);
             if (call) {
                 call.status = 'отклонен';
-                addLog(`Отклонен вызов ${id}`);
+                addLog(`Отклонен вызов #${id}`);
                 updateUI();
             }
         };
@@ -488,30 +524,37 @@
             const call = calls.find(c => c.id === id);
             if (call) {
                 call.status = 'завершен';
-                addLog(`Завершен вызов ${id}`);
+                addLog(`Завершен вызов #${id}`);
                 updateUI();
             }
         };
 
         // Показать модал для вызова
         function showCallModal(call) {
-            document.getElementById('call-info').innerText = `Вызов от ${call.phone}, адрес: ${call.address}`;
+            document.getElementById('call-info').innerText = `Вызов #${call.id} от ${call.phone}, адрес: ${call.address}`;
             document.getElementById('call-modal').style.display = 'flex';
 
             document.getElementById('start-call-btn').onclick = () => {
                 call.status = 'в работе';
-                addLog(`Начата работа с вызовом ${call.id}`);
+                addLog(`Начата работа с вызовом #${call.id}`);
                 currentUser.status = 'занят';
                 updateUI();
                 closeModal();
             };
 
             document.getElementById('transfer-call-btn').onclick = () => {
-                // Симуляция перевода: сбросить статус
                 call.status = 'ожидание';
                 call.operator = null;
                 currentUser.status = 'свободен';
-                addLog(`Переведен вызов ${call.id}`);
+                addLog(`Переведен вызов #${call.id}`);
+                updateUI();
+                closeModal();
+            };
+
+            document.getElementById('false-call-btn').onclick = () => {
+                call.status = 'ложный';
+                currentUser.status = 'свободен';
+                addLog(`Ложный вызов #${call.id}`);
                 updateUI();
                 closeModal();
             };
@@ -521,7 +564,7 @@
 
         function closeModal() {
             document.getElementById('call-modal').style.display = 'none';
-            currentUser.status = 'свободен';
+            if (currentUser.role === 'operator') currentUser.status = 'свободен';
             updateUI();
         }
 
@@ -530,7 +573,7 @@
             const total = calls.length;
             const falseCalls = calls.filter(c => c.status === 'ложный').length;
             const inWork = calls.filter(c => c.status === 'в работе').length;
-            const avgTime = calls.reduce((sum, c) => sum + (Date.now() - c.time) / 1000, 0) / total || 0;
+            const avgTime = calls.reduce((sum, c) => sum + (Date.now() - c.time) / 1000, 0) / (total || 1);
             return { total, false: falseCalls, inWork, avgTime: avgTime.toFixed(2) };
         }
 
@@ -540,7 +583,7 @@
             // Симуляция: просто список вызовов
             let report = `Отчет за ${period}:\n`;
             calls.forEach(c => {
-                report += `Вызов ${c.id}: ${c.phone}, ${c.address}, статус: ${c.status}\n`;
+                report += `Вызов #${c.id}: ${c.phone}, ${c.address}, статус: ${c.status}\n`;
             });
             document.getElementById('report-preview').innerText = report;
         }
