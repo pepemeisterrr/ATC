@@ -151,7 +151,7 @@
         }
 
         #left-panel {
-            flex: 1 1 400px; /* Гибкий, мин 400px */
+            flex: 1 1 500px; /* Шире для списка вызовов */
         }
 
         #right-panel {
@@ -180,6 +180,11 @@
         th {
             background: #e9ecef;
             font-weight: 500;
+        }
+
+        th:nth-child(2), td:nth-child(2) { /* Колонка телефона шире */
+            width: 200px;
+            white-space: nowrap;
         }
 
         .overtime {
@@ -283,9 +288,6 @@
             .dashboard {
                 flex-direction: column;
             }
-            #left-panel, #right-panel {
-                flex: 1 1 auto;
-            }
         }
     </style>
     <script src="https://api-maps.yandex.ru/2.1/?apikey=1163255e-bb23-48e7-aeb1-be5c1cc1be33&lang=ru_RU"></script>
@@ -385,9 +387,12 @@
         let markers = [];
         let currentCall = null; // Для модалов
 
-        // Генерация случайного номера телефона
+        // Генерация случайного номера телефона (реалистично +7 (9xx) xxx-xx-xx)
         function generatePhone() {
-            return '+7 (' + Math.floor(Math.random() * 900 + 100) + ') ' + Math.floor(Math.random() * 900 + 100) + '-' + Math.floor(Math.random() * 90 + 10);
+            const operatorCode = 9 + Math.floor(Math.random() * 10) + '' + Math.floor(Math.random() * 10); // 900-999
+            const middle = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            const last = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+            return `+7 (${operatorCode}) ${middle}-${last}`;
         }
 
         // Генерация случайного вызова (async для geocode)
