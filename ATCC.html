@@ -170,7 +170,7 @@
         }
 
         #map {
-            height: 400px;
+            height: 700px;
             width: 100%;
             margin-top: 20px;
         }
@@ -200,7 +200,7 @@
             margin: 10px;
         }
     </style>
-    <script src="https://api-maps.yandex.ru/2.1/?apikey=1163255e-bb23-48e7-aeb1-be5c1cc1be33&lang=ru_RU"></script> <!-- Замените YOUR_YANDEX_API_KEY на реальный ключ -->
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=1163255e-bb23-48e7-aeb1-be5c1cc1be33&lang=ru_RU"></script>
 </head>
 <body>
 
@@ -232,7 +232,7 @@
             <!-- Правая панель: Логи или Отчеты -->
             <div class="panel" id="right-panel"></div>
             <!-- Карта (для оператора) -->
-            <div class="panel" id="map-panel" style="flex: 100%;"></div>
+            <div class="panel" id="map-panel" style="flex: 100%;"><div id="map"></div></div>
         </div>
     </div>
 
@@ -248,6 +248,14 @@
     </div>
 
     <script>
+        // Bounding box Москвы (город)
+        const moscowBBox = {
+            latMin: 55.57,
+            latMax: 55.91,
+            lngMin: 37.35,
+            lngMax: 37.84
+        };
+
         // Тестовые аккаунты
         const users = {
             operator1: { role: 'operator', name: 'Оператор 1', password: '1234', status: 'свободен' },
@@ -256,15 +264,6 @@
             supervisor1: { role: 'supervisor', name: 'Дежурный Руководитель 1', password: '1234' }
         };
 
-        // Список возможных адресов в Москве с координатами
-        const moscowAddresses = [
-            { address: 'Красная площадь, 1', lat: 55.7539, lng: 37.6208 },
-            { address: 'Арбат, 10', lat: 55.7522, lng: 37.6011 },
-            { address: 'Тверская улица, 15', lat: 55.7600, lng: 37.6090 },
-            { address: 'Проспект Мира, 119', lat: 55.8267, lng: 37.6375 },
-            { address: 'Ленинградский проспект, 36', lat: 55.7892, lng: 37.5586 }
-        ];
-
         // Данные
         let calls = []; // Список вызовов
         let logs = []; // Логи
@@ -272,29 +271,40 @@
         let map = null;
         let markers = [];
 
-        // Инициализация карты
-        ymaps.ready(initMap);
-        function initMap() {
+        // Инициализация карты с проверкой
+        ymaps.ready(() => {
             map = new ymaps.Map('map', {
-                center: [55.7558, 37.6173], // Центр Москвы
+                center: [55.7558, 37.6173],
                 zoom: 10
             });
-        }
+            setTimeout(() => map.container.fitToViewport(), 100); // Фикс рендера
+            console.log('Yandex Map initialized successfully');
+        }).catch(err => console.error('Yandex Map init error:', err));
 
         // Генерация случайного номера телефона
         function generatePhone() {
             return '+7 (' + Math.floor(Math.random() * 900 + 100) + ') ' + Math.floor(Math.random() * 900 + 100) + '-' + Math.floor(Math.random() * 90 + 10);
         }
 
-        // Генерация случайного вызова
-        function generateCall() {
-            const addr = moscowAddresses[Math.floor(Math.random() * moscowAddresses.length)];
+        // Генерация случайного вызова (async для geocode)
+        async function generateCall() {
+            let lat = Math.random() * (moscowBBox.latMax - moscowBBox.latMin) + moscowBBox.latMin;
+            let lng = Math.random() * (moscowBBox.lngMax - moscowBBox.lngMin) + moscowBBox.lngMin;
+            let address = 'Неизвестный адрес'; // Fallback
+
+            try {
+                const res = await ymaps.geocode([lat, lng], { results: 1 });
+                address = res.geoObjects.get(0).getAddressLine() || address;
+            } catch (err) {
+                console.error('Geocode error:', err);
+            }
+
             const call = {
                 id: calls.length + 1,
                 phone: generatePhone(),
-                address: addr.address,
-                lat: addr.lat,
-                lng: addr.lng,
+                address: address,
+                lat: lat,
+                lng: lng,
                 time: Date.now(),
                 status: 'ожидание',
                 operator: null
@@ -318,12 +328,11 @@
 
         // Обновление цвета маркера
         function updateMarkerColor(marker, status) {
-            let color = '#3498db'; // Ожидание - синий
-            if (status === 'принят') color = '#27ae60'; // Зеленый
-            if (status === 'ложный') color = '#e74c3c'; // Красный
-            if (status === 'в работе') color = '#f39c12'; // Оранжевый
-            marker.options.set('preset', `islands#circleIcon`); // Можно кастомизировать
-            // Для кастомизации цвета нужно использовать custom icon, но для простоты используем preset
+            let color = 'blue';
+            if (status === 'принят') color = 'green';
+            if (status === 'ложный') color = 'red';
+            if (status === 'в работе') color = 'orange';
+            marker.options.set('preset', `islands#${color}CircleDotIcon`);
         }
 
         // Логи
@@ -345,7 +354,7 @@
                 addLog(`Вход: ${user.name}`);
                 updateUI();
                 // Начать генерацию вызовов
-                setInterval(generateCall, Math.random() * 10000 + 5000); // Каждые 5-15 сек
+                setInterval(() => generateCall(), Math.random() * 10000 + 5000); // Каждые 5-15 сек
             } else {
                 alert('Неверный логин или пароль');
             }
@@ -399,9 +408,8 @@
                     ul.appendChild(li);
                 });
 
-                // Карта
-                mapPanel.innerHTML = '<h3>Карта вызовов</h3><div id="map"></div>';
-                ymaps.ready(() => map.container.fitToViewport()); // Обновить карту
+                // Карта видна
+                mapPanel.style.display = 'block';
 
                 // Статистика
                 const stats = calculateStats();
@@ -447,6 +455,9 @@
                     workTable.appendChild(row);
                 });
             }
+
+            // Обновление маркеров
+            markers.forEach((marker, i) => updateMarkerColor(marker, calls[i] ? calls[i].status : ''));
         }
 
         // Принять вызов
@@ -544,9 +555,6 @@
             a.download = 'report.txt';
             a.click();
         }
-
-        // Обновление маркеров
-        markers.forEach((marker, i) => updateMarkerColor(marker, calls[i].status));
     </script>
 </body>
 </html>
