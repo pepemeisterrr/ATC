@@ -222,6 +222,13 @@
             padding: 20px;
             margin-top: 20px;
         }
+
+        /* Responsive для карты снизу на малых экранах */
+        @media (max-width: 768px) {
+            .dashboard {
+                flex-direction: column;
+            }
+        }
     </style>
     <script src="https://api-maps.yandex.ru/2.1/?apikey=1163255e-bb23-48e7-aeb1-be5c1cc1be33&lang=ru_RU"></script>
 </head>
@@ -498,7 +505,7 @@
         function initMap() {
             ymaps.ready(() => {
                 if (map) {
-                    map.destroy(); // Если уже есть, уничтожить
+                    map.destroy(); // Если уже есть, уничтожить, чтобы пересоздать
                 }
                 map = new ymaps.Map('map', {
                     center: [55.7558, 37.6173],
@@ -506,7 +513,8 @@
                 });
                 map.container.fitToViewport();
                 console.log('Yandex Map initialized');
-                // Пере добавить маркеры, если нужно
+                // Пере добавить существующие маркеры
+                map.geoObjects.removeAll();
                 markers = [];
                 calls.forEach(addMarker);
             }).catch(err => console.error('Yandex Map init error:', err));
