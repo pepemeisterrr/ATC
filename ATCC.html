@@ -384,6 +384,15 @@
                 <option value="средняя">Средняя</option>
                 <option value="высокая">Высокая</option>
             </select>
+            <label for="victims">Количество пострадавших:</label>
+            <input type="number" id="victims" min="0" placeholder="0">
+            <label for="object-type">Тип объекта:</label>
+            <select id="object-type">
+                <option value="здание">Здание</option>
+                <option value="транспорт">Транспорт</option>
+                <option value="природа">Природа</option>
+                <option value="другое">Другое</option>
+            </select>
             <textarea id="notes" placeholder="Описание происшествия..." style="width: 100%; height: 100px; border-radius: 10px; padding: 10px; margin-top: 10px;"></textarea>
             <button id="end-talk-btn" class="btn btn-accept">Завершить разговор</button>
             <button id="close-talk-btn" class="btn btn-reject">Закрыть</button>
@@ -460,7 +469,9 @@
                 operator: null,
                 notes: '',
                 incidentType: '',
-                urgency: ''
+                urgency: '',
+                victims: 0,
+                objectType: ''
             };
             calls.push(call);
             addLog(`Новый вызов #${call.id}: ${call.phone}, ${call.address}`);
@@ -613,8 +624,8 @@
                     table.appendChild(row);
                 });
 
-                // Принятые вызовы
-                leftPanel.innerHTML += '<h3>Принятые в работу вызовы</h3><div class="call-list"><table><tr><th>ID</th><th>Телефон</th><th>Адрес</th><th>Статус</th><th>Действия</th></tr></table></div>';
+                // Принятые вызовы (расширенно с деталями)
+                leftPanel.innerHTML += '<h3>Принятые в работу вызовы</h3><div class="call-list"><table><tr><th>ID</th><th>Телефон</th><th>Адрес</th><th>Тип</th><th>Срочность</th><th>Пострадавшие</th><th>Объект</th><th>Статус</th><th>Действия</th></tr></table></div>';
                 const workTable = leftPanel.querySelectorAll('table')[1];
                 calls.filter(c => c.status === 'в работе').forEach(call => {
                     const row = document.createElement('tr');
@@ -622,6 +633,10 @@
                         <td>${call.id}</td>
                         <td>${call.phone}</td>
                         <td>${call.address}</td>
+                        <td>${call.incidentType || 'Не указано'}</td>
+                        <td>${call.urgency || 'Не указано'}</td>
+                        <td>${call.victims || 0}</td>
+                        <td>${call.objectType || 'Не указано'}</td>
                         <td>${call.status}</td>
                         <td><button class="btn btn-accept" onclick="completeCall(${call.id})">Завершить</button></td>
                     `;
@@ -760,6 +775,8 @@
             document.getElementById('notes').value = call.notes || '';
             document.getElementById('incident-type').value = call.incidentType || 'пожар';
             document.getElementById('urgency').value = call.urgency || 'средняя';
+            document.getElementById('victims').value = call.victims || 0;
+            document.getElementById('object-type').value = call.objectType || 'здание';
             document.getElementById('talk-modal').style.display = 'flex';
             initCallMap(call);
 
@@ -767,8 +784,10 @@
                 call.notes = document.getElementById('notes').value;
                 call.incidentType = document.getElementById('incident-type').value;
                 call.urgency = document.getElementById('urgency').value;
+                call.victims = parseInt(document.getElementById('victims').value) || 0;
+                call.objectType = document.getElementById('object-type').value;
                 call.status = 'в работе';
-                addLog(`Завершен разговор по вызову #${call.id}, принят в работу. Тип: ${call.incidentType}, Срочность: ${call.urgency}`);
+                addLog(`Завершен разговор по вызову #${call.id}, принят в работу. Тип: ${call.incidentType}, Срочность: ${call.urgency}, Пострадавшие: ${call.victims}, Объект: ${call.objectType}`);
                 currentUser.status = 'занят';
                 updateUI();
                 closeTalkModal();
